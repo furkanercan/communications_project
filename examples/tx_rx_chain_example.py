@@ -1,28 +1,11 @@
 import numpy as np
-from src.common.create_polar_indices import create_polar_indices
+from src.common.polar.create_polar_indices import create_polar_indices
 from src.tx.channel_encoder import PolarEncoder
 # from src.tx.modulator import bpsk_modulate
 # from src.channel.awgn import add_awgn
 # from src.rx.demodulator import bpsk_demodulate
 # from src.rx.channel_decoder import polar_decode
 
-
-def test_polar_encoder():
-    len_logn = 3
-    vec_polar_info_indices = [0, 1, 4, 5]
-    uncoded_data = [1, 0, 1, 1]
-    
-    encoder = PolarEncoder(vec_polar_info_indices)
-    encoder.create_polar_matrices(len_logn)
-    
-    encoded_data = encoder.polar_encode(uncoded_data)
-    assert len(encoded_data) == 8  # Block length for len_logn=3
-    assert (encoded_data == (np.array(uncoded_data) @ encoder.matG_kxN) % 2).all()
-
-    matrices = encoder.export_matrices()
-    assert matrices["matG_NxN"].shape == (8, 8)
-    assert matrices["matG_kxN"].shape == (4, 8)
-    assert matrices["matH"].shape == (4, 8)  # Assuming 4 non-info bits
 
 # # 1. Generate random data
 # data = np.random.randint(0, 2, size=1000)

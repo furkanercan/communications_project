@@ -1,7 +1,6 @@
 import numpy as np
 
-
-class PolarEncoder:
+class PolarEncoder():
     """
     PolarEncoder handles encoding and parity-check matrix creation for polar codes.
 
@@ -39,7 +38,8 @@ class PolarEncoder:
         self.matG_NxN = None
         self.matHt = None
 
-    def polar_encode_chain(self, uncoded_data, len_logn):
+    def encode_chain(self, uncoded_data, len_logn):
+        # Function must use generic name 'encode_chain' to ensure abstraction consistency (later on)!
         self.create_polar_matrices(len_logn)
         return self.polar_encode(uncoded_data)
 
