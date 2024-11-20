@@ -2,10 +2,9 @@ import numpy as np
 import math
 
 class PolarDecoder_SC():
-    def __init__(self, vec_llr, len_logn, vec_isfrozen, qbits_enable, quant_intl_max, quant_intl_min):
-        self.len_logn = len_logn
-        self.vec_llr = vec_llr
-        self.vec_isfrozen = vec_isfrozen
+    def __init__(self, len_logn, vec_polar_isfrozen, qbits_enable, quant_intl_max, quant_intl_min):
+        self.len_logn = int(len_logn)
+        self.vec_polar_isfrozen = vec_polar_isfrozen
         self.mem_alpha = None
         self.mem_beta_l = None
         self.mem_beta_r = None
@@ -43,13 +42,11 @@ class PolarDecoder_SC():
             else:
                 self.vec_dec_sch.append(element)
 
-
-
     def embed_frozen_nodes(self):
         j = 0 
         for i in range(len(self.vec_dec_sch)):
             if(self.vec_dec_sch[i] == 'H'):
-                self.vec_dec_sch[i] = 'R1' if self.vec_isfrozen[j] == 0 else 'R0'
+                self.vec_dec_sch[i] = 'R1' if self.vec_polar_isfrozen[j] == 0 else 'R0'
                 j+=1 
 
     def create_decoding_stages(self):
@@ -176,14 +173,15 @@ class PolarDecoder_SC():
             self.mem_beta_r[0][0] = 1 if llr < 0 else 0
 
 
-    def dec_sc(self, qbits_enable, quant_intl_max, quant_intl_min):
+    def dec_sc(self, vec_llr):
+        self.mem_alpha[self.len_logn][:] = vec_llr # Place LLRs to bottom row of mem_alpha
         vec_decoded = []
         info_ctr = 0
         for i in range(len(self.vec_dec_sch)):
             if self.vec_dec_sch[i] == 'F':
-                self.dec_sc_f(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], qbits_enable, quant_intl_max)
+                self.dec_sc_f(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.qbits_enable, self.quant_intl_max)
             elif self.vec_dec_sch[i] == 'G':
-                self.dec_sc_g(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], qbits_enable, quant_intl_max, quant_intl_min)
+                self.dec_sc_g(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.qbits_enable, self.quant_intl_max, self.quant_intl_min)
             elif self.vec_dec_sch[i] == 'C':
                 self.dec_sc_c(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.vec_dec_sch_dir[i])
             elif self.vec_dec_sch[i] == 'R0':

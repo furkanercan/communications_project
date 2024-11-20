@@ -1,10 +1,45 @@
 import numpy as np
-from src.common.polar.create_polar_indices import create_polar_indices
-from src.tx.channel_encoder import PolarEncoder
-# from src.tx.modulator import bpsk_modulate
-# from src.channel.awgn import add_awgn
-# from src.rx.demodulator import bpsk_demodulate
-# from src.rx.channel_decoder import polar_decode
+import math
+from src.common.polar.polarcode import PolarCode
+from src.tx.tx import Transmitter
+from src.rx.rx import Receiver
+from src.channel.awgn import ChannelAWGN
+
+N = 8
+k = 4
+enable_crc = False
+r = 0
+len_logn = int(math.log2(N))
+# file_polar         = "src/lib/ecc/polar/3gpp/n256_3gpp.pc"
+file_polar         = "src/lib/ecc/polar/n8_awgn_s0.6.pc"
+
+qbits_enable       = False
+qbits_chnl         = 5
+qbits_intl         = 5
+qbits_frac         = 1
+quant_step         =    2 **  qbits_frac
+quant_chnl_upper   = (  2 ** (qbits_chnl -1) - 1)/quant_step
+quant_chnl_lower   = (-(2 ** (qbits_chnl -1)))//  quant_step
+quant_intl_max     = (  2 ** (qbits_intl -1) - 1)/quant_step
+quant_intl_min     = (-(2 ** (qbits_intl -1)))//  quant_step
+
+pc = PolarCode(file_polar, N, k, enable_crc, r) #(file_polar, k, r) olacak yakinda.
+
+stdev = 0.0
+
+transmitter = Transmitter(pc.info_indices, len_logn)
+channel = ChannelAWGN(stdev)
+receiver = Receiver(len_logn, pc.frozen_bits, qbits_enable, quant_intl_max, quant_intl_min)
+
+vec_info = np.array([1, 1, 1, 0])
+
+# evaluator = Evaluator() #BER, BLER, ITER, etc.
+
+modulated_data = transmitter.tx_chain(vec_info)
+received_data = channel.apply_awgn(modulated_data)
+decoded_data = receiver.rx_chain(received_data, channel.variance)
+
+print(decoded_data)
 
 
 # # 1. Generate random data

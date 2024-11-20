@@ -29,8 +29,8 @@ class PolarEncoder():
         Raises:
             TypeError: If vec_polar_info_indices is not a list.
         """
-        if not isinstance(vec_polar_info_indices, list):
-            raise TypeError("vec_polar_info_indices must be a list.")
+        if not isinstance(vec_polar_info_indices, (list, np.ndarray)):
+            raise TypeError("vec_polar_info_indices must be a list or a NumPy array.")
 
         self.vec_polar_info_indices = vec_polar_info_indices
         self.vec_polar_non_info_indices = None
@@ -40,7 +40,7 @@ class PolarEncoder():
 
     def encode_chain(self, uncoded_data, len_logn):
         # Function must use generic name 'encode_chain' to ensure abstraction consistency (later on)!
-        self.create_polar_matrices(len_logn)
+        self.create_polar_matrices(int(len_logn))
         return self.polar_encode(uncoded_data)
 
     def polar_encode(self, uncoded_data):
