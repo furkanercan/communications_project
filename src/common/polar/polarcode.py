@@ -2,34 +2,27 @@ import numpy as np
 import math
 
 class PolarCode:
-    def __init__(self, filepath, len_n, len_k, en_crc, len_r):
+    def __init__(self, config):
         """
         Initialize the PolarCode with information indices and frozen bits.
         """
-        self.reliability_indices = self.readfile_polar_rel_idx(filepath)
-        self.frozen_bits, self.info_indices = self.create_polar_indices(len_n, len_k, en_crc, len_r)
-
-
-    def readfile_polar_rel_idx(self, filepath):
-        reliability_indices = []
-
-        try:
-            with open(filepath, 'r') as file:
-                # Read each line from the file and append it to the vector
-                for line in file:
-                    values = line.split()
-                    if not all(value.isdigit() for value in values):
-                        raise ValueError("File contains non-integer values.")
-                    reliability_indices.extend([int(x) for x in values])
-        except FileNotFoundError:
-            raise FileNotFoundError(f"File '{filepath}' not found.")
-        except Exception as e:
-            raise RuntimeError(f"An error occurred: {e}")
+        self.reliability_indices = config["polar"]["rel_idx"]
+        self.len_n = config["polar"]["len_n"]
+        self.len_logn = config["polar"]["len_logn"]
+        self.len_k = config["polar"]["len_k"]
+        self.en_crc = config["polar"]["crc"]["enable"]
+        self.len_r = config["polar"]["crc"]["length"]
         
-        return reliability_indices
+        self.frozen_bits, self.info_indices = self.create_polar_indices()
+        
+        self.qtz_enable = config["polar"]["quantize"]["enable"]
+        self.qtz_chn_max = config["polar"]["quantize"]["chnl_upper"]
+        self.qtz_chn_min = config["polar"]["quantize"]["chnl_lower"]
+        self.qtz_int_max = config["polar"]["quantize"]["intl_max"]
+        self.qtz_int_min = config["polar"]["quantize"]["intl_min"]
 
 
-    def create_polar_indices(self, len_n, len_k, en_crc, len_r):
+    def create_polar_indices(self):
         """
         Create frozen and information bit indices for the polar code.
 
@@ -46,21 +39,13 @@ class PolarCode:
             frozen_bits (np.ndarray): Updated frozen bit vector.
             info_indices (np.ndarray): Updated information bit indices.
         """
-        if not isinstance(len_n, int) or len_n <= 0:
-            raise ValueError("len_n must be a positive integer.")
-        if not isinstance(len_k, int) or len_k <= 0:
-            raise ValueError("len_k must be a positive integer.")
-        if not isinstance(en_crc, bool):
-            raise ValueError("en_crc must be a boolean value.")
-        if not isinstance(len_r, int) or len_r < 0:
-            raise ValueError("len_r must be a non-negative integer.")
 
-        frozen_bits = np.ones(len_n, dtype=int)
-        vec_polar_info = np.ones(len_n, dtype=int)
+        frozen_bits = np.ones(self.len_n, dtype=int)
+        vec_polar_info = np.ones(self.len_n, dtype=int)
 
-        len_i = len_k
-        if(en_crc):
-            len_i += len_r
+        len_i = self.len_k
+        if(self.en_crc):
+            len_i += self.len_r
         for num, index in enumerate(self.reliability_indices[:len_i], start=0):
             frozen_bits[index] = 0
         for num, index in enumerate(self.reliability_indices[len_i:], start=len_i):

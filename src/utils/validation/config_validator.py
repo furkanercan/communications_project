@@ -1,3 +1,4 @@
+import os
 from src.utils.validation.config_validator_polar import *
 from src.utils.validation.validate_keys import *
 
@@ -71,14 +72,11 @@ def validate_config_channel_snr(config):
     # Ensure 'step' is positive
     if step <= 0:
         raise ValueError(f"'channel.snr.step' ({step}) must be positive.")
+    
 
-    # # Ensure 'step' is not larger than the range
-    # if step > (end - start):
-    #     raise ValueError(f"'channel.snr.step' ({step}) cannot be larger than the range ('end' - 'start' = {end - start}).")
+    config["simpoints"] = np.arange(start, end + step, step, dtype=float)
+    config["len_points"] = len(config["simpoints"])
 
-    # # Ensure the range can produce at least one value
-    # if start == end and step > 0:
-    #     raise ValueError(f"'channel.snr' range [{start}, {end}] with step {step} produces no values. Check the configuration.")
 
     return config
 
@@ -106,7 +104,7 @@ def validate_config_sim_loop(config):
         "num_errors": int   
     }
     optional_keys = {
-        "num_max_frames": (int, 1e7),  
+        "max_frames": (int, 1e7),  
     }
 
     validate_required_keys(config, required_keys, "sim.loop")
@@ -114,14 +112,14 @@ def validate_config_sim_loop(config):
 
     num_frames = config["num_frames"]
     num_errors = config["num_errors"]
-    num_max_frames = config["num_max_frames"]
+    max_frames = config["max_frames"]
 
     if num_frames < 0:
         raise ValueError(f"'sim.loop.num_frames' ({num_frames}) must be a non-negative value.")
     if num_errors < 0:
         raise ValueError(f"'sim.loop.num_errors' ({num_errors}) must be a non-negative value.")
-    if num_max_frames < 0:
-        raise ValueError(f"'sim.loop.num_max_frames' ({num_max_frames}) must be a non-negative value.")
+    if max_frames < 0:
+        raise ValueError(f"'sim.loop.max_frames' ({max_frames}) must be a non-negative value.")
 
     return config
 
@@ -135,5 +133,8 @@ def validate_config_sim_save(config):
     }
 
     validate_optional_keys(config, optional_keys, "sim.loop")
+    
+    # config["path_output"]     = f"SC_{os.path.splitext(os.path.basename(filepath))[0]}_k{len_k}.out"
+    # config["path_fig_output"] = f"SC_{os.path.splitext(os.path.basename(filepath))[0]}_k{len_k}.png"
 
     return config

@@ -1,64 +1,54 @@
 import numpy as np
 import math
+import string
+
 from src.common.polar.polarcode import PolarCode
 from src.tx.tx import Transmitter
 from src.rx.rx import Receiver
+from src.sim.sim import Simulation
 from src.channel.awgn import ChannelAWGN
 from src.utils.validation.config_loader import ConfigLoader
-# from src.utils.config_loader import calc_config_params
+from src.utils.output_handler import *
+from src.utils.create_run_id import *
 
+
+seed = 42
 config_file = "config.json5"
 config = ConfigLoader(config_file).get()
+run_id = create_run_id(config["code"]["type"], seed)
+output_folder = create_output_folder(run_id)
+save_config_to_folder(config, output_folder)
 
 code_config = config["code"]
 channel_config = config["channel"]
 mod_config = config["mod"]
 sim_config = config["sim"]
 
-# calc_config_params(config)
+sim = Simulation(sim_config)
+pc = PolarCode(code_config) # This need to be in receiver??
+transmitter = Transmitter(pc.info_indices, pc.len_logn)
+channel = ChannelAWGN(channel_config)
+receiver = Receiver(pc.len_logn, pc.frozen_bits, pc.qtz_enable, pc.qtz_int_max, pc.qtz_int_min)
 
-# enable_crc = False
-# r = 0
-# len_logn = int(math.log2(N))
-# # file_polar         = "src/lib/ecc/polar/3gpp/n256_3gpp.pc"
-# file_polar         = "src/lib/ecc/polar/n8_awgn_s0.6.pc"
+frame_count        = np.zeros(channel.lenpoints, dtype=int)
+bit_error          = np.zeros(channel.lenpoints, dtype=int)
+frame_error        = np.zeros(channel.lenpoints, dtype=int)
+ber                = np.zeros(channel.lenpoints, dtype=float)
+bler               = np.zeros(channel.lenpoints, dtype=float)
 
-# qbits_enable       = False
-# qbits_chnl         = 5
-# qbits_intl         = 5
-# qbits_frac         = 1
-# quant_step         =    2 **  qbits_frac
-# quant_chnl_upper   = (  2 ** (qbits_chnl -1) - 1)/quant_step
-# quant_chnl_lower   = (-(2 ** (qbits_chnl -1)))//  quant_step
-# quant_intl_max     = (  2 ** (qbits_intl -1) - 1)/quant_step
-# quant_intl_min     = (-(2 ** (qbits_intl -1)))//  quant_step
+for idx, (stdev, var) in enumerate(zip(channel.stdev, channel.variance)):
+    while((frame_count[idx] < sim.num_frames or frame_error[idx] < sim.num_errors) and frame_count[idx] > sim.max_frames):
+        vec_info = np.zeros(pc.len_k)
+        modulated_data = transmitter.tx_chain(vec_info)
+        received_data = channel.apply_awgn(modulated_data, stdev)
+        decoded_data = receiver.rx_chain(received_data, var)
 
+        frame_count[idx] = frame_count[idx] + 1
+        frame_error[idx] = frame_error[idx] + 1
 
+        # print(decoded_data)
 
-
-
-
-
-
-# pc = PolarCode(file_polar, N, k, enable_crc, r) #(file_polar, k, r) olacak yakinda.
-
-# stdev = 0.1
-
-# transmitter = Transmitter(pc.info_indices, len_logn)
-# channel = ChannelAWGN(stdev)
-# receiver = Receiver(len_logn, pc.frozen_bits, qbits_enable, quant_intl_max, quant_intl_min)
-
-# vec_info = np.array([1, 1, 1, 0])
-
-# # evaluator = Evaluator() #BER, BLER, ITER, etc.
-
-# modulated_data = transmitter.tx_chain(vec_info)
-# received_data = channel.apply_awgn(modulated_data)
-# decoded_data = receiver.rx_chain(received_data, channel.variance)
-
-# print(decoded_data)
-
-
+# evaluator = Evaluator() #BER, BLER, ITER, etc.
 # # 1. Generate random data
 # data = np.random.randint(0, 2, size=1000)
 

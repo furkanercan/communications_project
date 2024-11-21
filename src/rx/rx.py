@@ -2,7 +2,7 @@ from src.rx.decoders.polar.sc import PolarDecoder_SC
 from src.rx.demodulator import Demodulator
 
 class Receiver:
-    def __init__(self, len_logn, vec_polar_isfrozen, qbits_enable=False, quant_intl_max=7, quant_intl_min=-7):
+    def __init__(self, len_logn, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min):
         """
         Initialize the Receiver with a decoder (abstraction).
 
@@ -10,12 +10,12 @@ class Receiver:
             vec_llr (list): Log-likelihood ratio (LLR) values for decoding.
             len_logn (int): log2(N), where N is the block length.
             vec_polar_isfrozen (list): Frozen bit indicator list.
-            qbits_enable (bool): Whether quantization is enabled (default: False).
-            quant_intl_max (int): Maximum quantization value.
-            quant_intl_min (int): Minimum quantization value.
+            qtz_enable (bool): Whether quantization is enabled (default: False).
+            qtz_int_max (int): Maximum quantization value.
+            qtz_int_min (int): Minimum quantization value.
         """
         self.demodulator = Demodulator()
-        self.decoder = PolarDecoder_SC(len_logn, vec_polar_isfrozen, qbits_enable, quant_intl_max, quant_intl_min)
+        self.decoder = PolarDecoder_SC(len_logn, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min)
         self.decoder.initialize_decoder()
         
 

@@ -45,15 +45,15 @@
         "type": "SNR",
         "snr": {
             "start": 1,
-            "end": 1,
-            "step": 0.5
+            "end": 3,
+            "step": 0.25
         }
     },
     "sim": {
         "loop": {
             "num_frames": 10000,
             "num_errors": 0,
-            "num_max_frames": 10000000
+            "max_frames": 10000000
         },
         "save": {
             "plot_enable": true,

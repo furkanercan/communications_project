@@ -23,6 +23,7 @@ dist/
 *.swp
 *.swo
 *.DS_Store
+output/*
 
 # Jupyter Notebook checkpoints
 .ipynb_checkpoints/

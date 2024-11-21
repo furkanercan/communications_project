@@ -2,7 +2,7 @@ import numpy as np
 import math
 
 class PolarDecoder_SC():
-    def __init__(self, len_logn, vec_polar_isfrozen, qbits_enable, quant_intl_max, quant_intl_min):
+    def __init__(self, len_logn, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min):
         self.len_logn = int(len_logn)
         self.vec_polar_isfrozen = vec_polar_isfrozen
         self.mem_alpha = None
@@ -12,9 +12,9 @@ class PolarDecoder_SC():
         self.vec_dec_sch_size = []
         self.vec_dec_sch_depth = []
         self.vec_dec_sch_dir = []
-        self.qbits_enable = qbits_enable
-        self.quant_intl_max = quant_intl_max
-        self.quant_intl_min = quant_intl_min
+        self.qtz_enable = qtz_enable
+        self.qtz_int_max = qtz_int_max
+        self.qtz_int_min = qtz_int_min
 
     def initialize_decoder(self):
         if not self.vec_dec_sch:
@@ -179,9 +179,9 @@ class PolarDecoder_SC():
         info_ctr = 0
         for i in range(len(self.vec_dec_sch)):
             if self.vec_dec_sch[i] == 'F':
-                self.dec_sc_f(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.qbits_enable, self.quant_intl_max)
+                self.dec_sc_f(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.qtz_enable, self.qtz_int_max)
             elif self.vec_dec_sch[i] == 'G':
-                self.dec_sc_g(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.qbits_enable, self.quant_intl_max, self.quant_intl_min)
+                self.dec_sc_g(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.qtz_enable, self.qtz_int_max, self.qtz_int_min)
             elif self.vec_dec_sch[i] == 'C':
                 self.dec_sc_c(self.vec_dec_sch_size[i], self.vec_dec_sch_depth[i], self.vec_dec_sch_dir[i])
             elif self.vec_dec_sch[i] == 'R0':
