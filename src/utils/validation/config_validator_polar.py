@@ -1,6 +1,7 @@
 import warnings
 import numpy as np
-from src.utils.validation.validate_keys import *
+from src.utils.validation.validate_keys import validate_required_keys
+from src.utils.validation.validate_keys import validate_optional_keys
 
 def validate_config_polar(config):
     required_keys = {
@@ -17,6 +18,11 @@ def validate_config_polar(config):
     }
 
     validate_required_keys(config, required_keys, "polar")
+
+    len_k = config["len_k"]
+
+    if len_k < 0:
+        raise ValueError(f"'polar.len_k' ({len_k}) must be a non-negative value.")
 
     # Validate optional nested sections
     if "crc" in config:
@@ -37,12 +43,12 @@ def validate_config_polar(config):
 def validate_config_polar_fast_enable(config):
 
     optional_keys = {
-        "rate0": (int, 0),
-        "rate1": (int, 0),
-        "rep": (int, 0),
-        "spc": (int, 0),
-        "ml_0101": (int, 0),
-        "ml_0011": (int, 0)
+        "rate0": (bool, False),
+        "rate1": (bool, False),
+        "rep": (bool, False),
+        "spc": (bool, False),
+        "ml_0101": (bool, False),
+        "ml_0011": (bool, False)
     }
 
     validate_optional_keys(config, optional_keys, "polar.fast_enable")
@@ -85,7 +91,7 @@ def validate_config_polar_decoder(config):
 
 def validate_config_polar_crc(config):
     required_keys = {
-        "enable": int,
+        "enable": bool,
         "length": int
     }
 
@@ -97,7 +103,7 @@ def validate_config_polar_crc(config):
 
 def validate_config_polar_quantize(config):
     optional_keys = {
-        "enable": (int, 0),
+        "enable": (bool, False),
         "bits_chnl": (int, 5),
         "bits_intl": (int, 6),
         "bits_frac": (int, 1)

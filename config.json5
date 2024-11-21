@@ -9,7 +9,7 @@
             "polar_file": "src/lib/ecc/polar/3gpp/n128_3gpp.pc",
             "len_k": 64,
             "crc":{
-                "enable": 0,
+                "enable": false,
                 "length" : 8
             },
             "decoder":{
@@ -17,18 +17,18 @@
                 "flip_max_iters": 30
             },
             "quantize": {
-                "enable": 0,
+                "enable": false,
                 "bits_chnl": 5,
                 "bits_intl": 6,
                 "bits_frac": 1
             },
             "fast_enable": {
-                "rate0": 0,
-                "rate1": 0,
-                "rep": 0,
-                "spc": 0,
-                "ml_0011": 0,
-                "ml_0101": 0
+                "rate0": false,
+                "rate1": false,
+                "rep": false,
+                "spc": false,
+                "ml_0011": false,
+                "ml_0101": false
             },
             "fast_max_size": {
                 "rate0": 1024,
@@ -56,9 +56,9 @@
             "num_max_frames": 10000000
         },
         "save": {
-            "plot_enable": 1,
-            "lutsim_enable": 0,
-            "save_output": 1
+            "plot_enable": true,
+            "lutsim_enable": false,
+            "save_output": true
         }
     }
 }

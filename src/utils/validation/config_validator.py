@@ -60,6 +60,26 @@ def validate_config_channel_snr(config):
 
     validate_required_keys(config, required_keys, "channel.snr")
 
+    start = config["start"]
+    end = config["end"]
+    step = config["step"]
+
+    # Ensure 'end' is greater than or equal to 'start'
+    if end < start:
+        raise ValueError(f"'channel.snr.end' ({end}) must be greater than or equal to 'channel.snr.start' ({start}).")
+
+    # Ensure 'step' is positive
+    if step <= 0:
+        raise ValueError(f"'channel.snr.step' ({step}) must be positive.")
+
+    # # Ensure 'step' is not larger than the range
+    # if step > (end - start):
+    #     raise ValueError(f"'channel.snr.step' ({step}) cannot be larger than the range ('end' - 'start' = {end - start}).")
+
+    # # Ensure the range can produce at least one value
+    # if start == end and step > 0:
+    #     raise ValueError(f"'channel.snr' range [{start}, {end}] with step {step} produces no values. Check the configuration.")
+
     return config
 
 
@@ -92,15 +112,26 @@ def validate_config_sim_loop(config):
     validate_required_keys(config, required_keys, "sim.loop")
     validate_optional_keys(config, optional_keys, "sim.loop")
 
+    num_frames = config["num_frames"]
+    num_errors = config["num_errors"]
+    num_max_frames = config["num_max_frames"]
+
+    if num_frames < 0:
+        raise ValueError(f"'sim.loop.num_frames' ({num_frames}) must be a non-negative value.")
+    if num_errors < 0:
+        raise ValueError(f"'sim.loop.num_errors' ({num_errors}) must be a non-negative value.")
+    if num_max_frames < 0:
+        raise ValueError(f"'sim.loop.num_max_frames' ({num_max_frames}) must be a non-negative value.")
+
     return config
 
 
 
 def validate_config_sim_save(config):
     optional_keys = {
-        "plot_enable": (int, 0),
-        "lutsim_enable": (int, 0),
-        "save_output": (int, 1) 
+        "plot_enable": (bool, False),
+        "lutsim_enable": (bool, False),
+        "save_output": (bool, True)
     }
 
     validate_optional_keys(config, optional_keys, "sim.loop")

@@ -1,6 +1,17 @@
 import numpy as np
 import warnings
+import logging
+
 from src.utils.validation.config_validator_polar import *
+
+logging.basicConfig(
+    level=logging.INFO,                  # Set logging level
+    format="%(asctime)s - %(levelname)s - %(message)s",  # Include timestamps
+    handlers=[
+        logging.FileHandler("run.log"),  # Log file name
+        logging.StreamHandler()  # Also log to console
+    ]
+)
 
 def validate_required_keys(config, required_keys, section_name):
     """
@@ -35,11 +46,11 @@ def validate_optional_keys(config, optional_keys, section_name):
     """
     for key, (expected_type, default_value) in optional_keys.items():
         if key not in config:
-            warnings.warn(
-                f"'{section_name}.{key}' not found in configuration. Using default value: {default_value}.",
-                UserWarning
+            # warnings.warn(f"'{section_name}.{key}' not found in configuration. Using default value: {default_value}.", UserWarning)
+            logging.info(
+                f"'{section_name}.{key}' not found. Defaulting to: {default_value}."
             )
-            config[key] = default_value
+            config[key] = default_value 
         elif not isinstance(config[key], expected_type):
             raise TypeError(
                 f"'{section_name}.{key}' must be of type {expected_type}, got {type(config[key])}"

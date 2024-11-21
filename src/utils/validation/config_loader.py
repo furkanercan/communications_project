@@ -1,7 +1,7 @@
 import json
 from src.utils.validation.validation_manager import validate_config
 
-# Load config --> Validate config --> Cross-correlate config
+# Loads config, then Validates config
 # Validate: anything unrecognized should be flagged.
 # Validate: types for each data, ranges if applicable
 # Validate: if a parameter is missing. If essential, throw error. Otherwise, warning with default value (be conservative)
