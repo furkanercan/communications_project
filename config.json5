@@ -1,0 +1,64 @@
+{
+    "_comments": [
+        "This is the default configuration file.",
+        "Refer to ref_config_*.json5 files in the root directory for specific configurations with reference information."
+    ],
+    "code": {
+        "type": "POLAR",
+        "polar":{
+            "polar_file": "src/lib/ecc/polar/3gpp/n128_3gpp.pc",
+            "len_k": 64,
+            "crc":{
+                "enable": 0,
+                "length" : 8
+            },
+            "decoder":{
+                "algorithm": "SC",
+                "flip_max_iters": 30
+            },
+            "quantize": {
+                "enable": 0,
+                "bits_chnl": 5,
+                "bits_intl": 6,
+                "bits_frac": 1
+            },
+            "fast_enable": {
+                "rate0": 0,
+                "rate1": 0,
+                "rep": 0,
+                "spc": 0,
+                "ml_0011": 0,
+                "ml_0101": 0
+            },
+            "fast_max_size": {
+                "rate0": 1024,
+                "rate1": 1024,
+                "rep": 1024,
+                "spc": 1024
+            }
+        }
+    },
+    "mod": {
+        "type": "BPSK"
+    },
+    "channel": {
+        "type": "SNR",
+        "snr": {
+            "start": 1,
+            "end": 1,
+            "step": 0.5
+        }
+    },
+    "sim": {
+        "loop": {
+            "num_frames": 10000,
+            "num_errors": 0,
+            "num_max_frames": 10000000
+        },
+        "save": {
+            "plot_enable": 1,
+            "lutsim_enable": 0,
+            "save_output": 1
+        }
+    }
+}

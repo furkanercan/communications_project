@@ -4,42 +4,59 @@ from src.common.polar.polarcode import PolarCode
 from src.tx.tx import Transmitter
 from src.rx.rx import Receiver
 from src.channel.awgn import ChannelAWGN
+from src.utils.validation.config_loader import ConfigLoader
+# from src.utils.config_loader import calc_config_params
 
-N = 8
-k = 4
-enable_crc = False
-r = 0
-len_logn = int(math.log2(N))
-# file_polar         = "src/lib/ecc/polar/3gpp/n256_3gpp.pc"
-file_polar         = "src/lib/ecc/polar/n8_awgn_s0.6.pc"
+config_file = "config.json5"
+config = ConfigLoader(config_file).get()
 
-qbits_enable       = False
-qbits_chnl         = 5
-qbits_intl         = 5
-qbits_frac         = 1
-quant_step         =    2 **  qbits_frac
-quant_chnl_upper   = (  2 ** (qbits_chnl -1) - 1)/quant_step
-quant_chnl_lower   = (-(2 ** (qbits_chnl -1)))//  quant_step
-quant_intl_max     = (  2 ** (qbits_intl -1) - 1)/quant_step
-quant_intl_min     = (-(2 ** (qbits_intl -1)))//  quant_step
+code_config = config["code"]
+channel_config = config["channel"]
+mod_config = config["mod"]
+sim_config = config["sim"]
 
-pc = PolarCode(file_polar, N, k, enable_crc, r) #(file_polar, k, r) olacak yakinda.
+# calc_config_params(config)
 
-stdev = 0.0
+# enable_crc = False
+# r = 0
+# len_logn = int(math.log2(N))
+# # file_polar         = "src/lib/ecc/polar/3gpp/n256_3gpp.pc"
+# file_polar         = "src/lib/ecc/polar/n8_awgn_s0.6.pc"
 
-transmitter = Transmitter(pc.info_indices, len_logn)
-channel = ChannelAWGN(stdev)
-receiver = Receiver(len_logn, pc.frozen_bits, qbits_enable, quant_intl_max, quant_intl_min)
+# qbits_enable       = False
+# qbits_chnl         = 5
+# qbits_intl         = 5
+# qbits_frac         = 1
+# quant_step         =    2 **  qbits_frac
+# quant_chnl_upper   = (  2 ** (qbits_chnl -1) - 1)/quant_step
+# quant_chnl_lower   = (-(2 ** (qbits_chnl -1)))//  quant_step
+# quant_intl_max     = (  2 ** (qbits_intl -1) - 1)/quant_step
+# quant_intl_min     = (-(2 ** (qbits_intl -1)))//  quant_step
 
-vec_info = np.array([1, 1, 1, 0])
 
-# evaluator = Evaluator() #BER, BLER, ITER, etc.
 
-modulated_data = transmitter.tx_chain(vec_info)
-received_data = channel.apply_awgn(modulated_data)
-decoded_data = receiver.rx_chain(received_data, channel.variance)
 
-print(decoded_data)
+
+
+
+
+# pc = PolarCode(file_polar, N, k, enable_crc, r) #(file_polar, k, r) olacak yakinda.
+
+# stdev = 0.1
+
+# transmitter = Transmitter(pc.info_indices, len_logn)
+# channel = ChannelAWGN(stdev)
+# receiver = Receiver(len_logn, pc.frozen_bits, qbits_enable, quant_intl_max, quant_intl_min)
+
+# vec_info = np.array([1, 1, 1, 0])
+
+# # evaluator = Evaluator() #BER, BLER, ITER, etc.
+
+# modulated_data = transmitter.tx_chain(vec_info)
+# received_data = channel.apply_awgn(modulated_data)
+# decoded_data = receiver.rx_chain(received_data, channel.variance)
+
+# print(decoded_data)
 
 
 # # 1. Generate random data
