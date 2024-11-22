@@ -36,6 +36,8 @@ output/*
 *.coverage
 .cache/
 pytest_cache/
+analyze_stats.py
+profile_output.prof
 
 # Generated files
 *.sqlite3

@@ -1,5 +1,6 @@
 import numpy as np
 import math
+from numba import njit
 
 class PolarDecoder_SC():
     def __init__(self, len_logn, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min):
@@ -15,6 +16,7 @@ class PolarDecoder_SC():
         self.qtz_enable = qtz_enable
         self.qtz_int_max = qtz_int_max
         self.qtz_int_min = qtz_int_min
+        self.use_optimized = 1
 
     def initialize_decoder(self):
         if not self.vec_dec_sch:
@@ -95,8 +97,15 @@ class PolarDecoder_SC():
 
     def isLeaf(self, node):
         return node == 'R0' or node == 'R1'
+    
+    def dec_sc_f(self, stage_size, stage_depth, is_quantized, max_value):
+        # if self.use_optimized:
+            return self.dec_sc_f_optimized(stage_size, stage_depth, is_quantized, max_value)
+        # else:
+        #     return self.dec_sc_f_legacy(stage_size, stage_depth, is_quantized, max_value)
 
-    def dec_sc_f(self, stage_size, stage_depth, is_quantized, max_value):    
+    
+    def dec_sc_f_optimized(self, stage_size, stage_depth, is_quantized, max_value):
         """
         Perform F-node (function node) computation.
 
@@ -104,8 +113,27 @@ class PolarDecoder_SC():
             stage_size (int): The size of the current stage.
             stage_depth (int): The depth of the current stage in the decoding tree.
         """
-        llr_a = self.mem_alpha[stage_depth][:stage_size // 2]
-        llr_b = self.mem_alpha[stage_depth][stage_size // 2:]
+        mid_point = stage_size // 2
+        llr_a = self.mem_alpha[stage_depth][:mid_point]
+        llr_b = self.mem_alpha[stage_depth][mid_point:]
+
+        # Use the Numba-optimized function
+        result = dec_sc_f_numba(llr_a, llr_b, is_quantized, max_value)
+
+        # Store the result back
+        self.mem_alpha[stage_depth - 1][:mid_point] = result
+
+    def dec_sc_f_legacy(self, stage_size, stage_depth, is_quantized, max_value):    
+        """
+        Perform F-node (function node) computation.
+
+        Args:
+            stage_size (int): The size of the current stage.
+            stage_depth (int): The depth of the current stage in the decoding tree.
+        """
+        mid_point = stage_size // 2
+        llr_a = self.mem_alpha[stage_depth][:mid_point]
+        llr_b = self.mem_alpha[stage_depth][mid_point:]
         
         abs_llr = np.minimum(np.abs(llr_a), np.abs(llr_b))
         sign = np.sign(llr_a * llr_b)
@@ -114,9 +142,16 @@ class PolarDecoder_SC():
         if is_quantized: #Only possible breach is when the result is 2^q and in 2s complement form.
             result = np.minimum(max_value, result)
         
-        self.mem_alpha[stage_depth - 1][:stage_size // 2] = result
+        self.mem_alpha[stage_depth - 1][:mid_point] = result
 
     def dec_sc_g(self, stage_size, stage_depth, is_quantized, max_value, min_value):
+        # if self.use_optimized:
+            return self.dec_sc_g_optimized(stage_size, stage_depth, is_quantized, max_value, min_value)
+        # else:
+        #     return self.dec_sc_g_legacy(stage_size, stage_depth, is_quantized, max_value, min_value)
+
+
+    def dec_sc_g_legacy(self, stage_size, stage_depth, is_quantized, max_value, min_value):
         """
         Perform G-node (function node) computation.
 
@@ -127,16 +162,29 @@ class PolarDecoder_SC():
             max_value (int): Max quantization value
             min_value (int): Min quantization value
         """
-        llr_a = self.mem_alpha[stage_depth][:stage_size // 2]
-        llr_b = self.mem_alpha[stage_depth][stage_size // 2:]
+        mid_point = stage_size // 2
 
-        mem_beta_slice = self.mem_beta_l[stage_depth - 1][:stage_size // 2]
+        llr_a = self.mem_alpha[stage_depth][:mid_point]
+        llr_b = self.mem_alpha[stage_depth][mid_point:]
+
+        mem_beta_slice = self.mem_beta_l[stage_depth - 1][:mid_point]
         mem_alpha_slice = np.where(mem_beta_slice == 0, llr_b + llr_a, llr_b - llr_a)        
 
         if is_quantized:
             mem_alpha_slice = np.clip(mem_alpha_slice, min_value, max_value)
 
-        self.mem_alpha[stage_depth - 1][:stage_size // 2] = mem_alpha_slice
+        self.mem_alpha[stage_depth - 1][:mid_point] = mem_alpha_slice
+
+    def dec_sc_g_optimized(self, stage_size, stage_depth, is_quantized, max_value, min_value):
+        mid_point = stage_size // 2
+        llr_a = self.mem_alpha[stage_depth][:mid_point]
+        llr_b = self.mem_alpha[stage_depth][mid_point:]
+        mem_beta_slice = self.mem_beta_l[stage_depth - 1][:mid_point]
+
+        # Use the Numba-compiled function
+        self.mem_alpha[stage_depth - 1][:mid_point] = dec_sc_g_numba(
+            llr_a, llr_b, mem_beta_slice, is_quantized, max_value, min_value
+        )
 
     def dec_sc_c(self, stage_size, stage_depth, stage_dir):
         """
@@ -173,9 +221,8 @@ class PolarDecoder_SC():
             self.mem_beta_r[0][0] = 1 if llr < 0 else 0
 
 
-    def dec_sc(self, vec_llr):
+    def dec_sc(self, vec_decoded, vec_llr):
         self.mem_alpha[self.len_logn][:] = vec_llr # Place LLRs to bottom row of mem_alpha
-        vec_decoded = []
         info_ctr = 0
         for i in range(len(self.vec_dec_sch)):
             if self.vec_dec_sch[i] == 'F':
@@ -192,9 +239,71 @@ class PolarDecoder_SC():
             elif self.vec_dec_sch[i] == 'R1':
                 self.dec_sc_h(self.mem_alpha[0][0], self.vec_dec_sch_dir[i])
                 if(self.vec_dec_sch_dir[i] == 0):
-                    vec_decoded.append(self.mem_beta_l[0][0]) # May revert to POCO style if too slow.
+                    # vec_decoded.append(self.mem_beta_l[0][0]) # May revert to POCO style if too slow.
+                    vec_decoded[info_ctr] = self.mem_beta_l[0][0]
                 else:
-                    vec_decoded.append(self.mem_beta_r[0][0])
+                    # vec_decoded.append(self.mem_beta_r[0][0])
+                    vec_decoded[info_ctr] = self.mem_beta_r[0][0]
                 info_ctr += 1
+    
+    from numba import njit
 
-        return vec_decoded
+
+
+
+
+
+
+
+
+@njit
+def dec_sc_f_numba(llr_a, llr_b, is_quantized, max_value):
+    """
+    Perform F-node (function node) computation using JIT compilation.
+
+    Args:
+        llr_a (np.ndarray): First set of LLRs (log-likelihood ratios).
+        llr_b (np.ndarray): Second set of LLRs.
+        is_quantized (bool): Whether quantization is applied.
+        max_value (float): Maximum value allowed during quantization.
+
+    Returns:
+        np.ndarray: Computed F-node results.
+    """
+    mid_point = llr_a.shape[0]
+    result = np.empty(mid_point, dtype=llr_a.dtype)
+
+    for i in range(mid_point):
+        abs_llr = min(abs(llr_a[i]), abs(llr_b[i]))
+        sign = np.sign(llr_a[i] * llr_b[i])
+        result[i] = abs_llr * sign
+
+        if is_quantized:
+            result[i] = min(max_value, result[i])
+
+    return result
+
+
+@njit
+def dec_sc_g_numba(llr_a, llr_b, mem_beta_slice, is_quantized, max_value, min_value):
+    mid_point = llr_a.shape[0]
+    mem_alpha_slice = np.empty(mid_point, dtype=llr_a.dtype)
+
+    for i in range(mid_point):
+        if mem_beta_slice[i] == 0:
+            mem_alpha_slice[i] = llr_b[i] + llr_a[i]
+        else:
+            mem_alpha_slice[i] = llr_b[i] - llr_a[i]
+
+        if is_quantized:
+            # In-place quantization
+            if mem_alpha_slice[i] > max_value:
+                mem_alpha_slice[i] = max_value
+            elif mem_alpha_slice[i] < min_value:
+                mem_alpha_slice[i] = min_value
+
+    return mem_alpha_slice
+
+
+
+

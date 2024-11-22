@@ -6,7 +6,7 @@ class Modulator:
     def __init__(self):
         pass
 
-    def mod_bpsk(self, bool_data):
+    def mod_bpsk(self, modulated_data, bool_data):
         """
         Perform BPSK modulation.
 
@@ -24,5 +24,4 @@ class Modulator:
         
         bool_data = np.asarray(bool_data) # Ensure data type
         
-        modulated_data = 1 - 2 * bool_data
-        return modulated_data
+        modulated_data[:] = 1 - 2 * bool_data

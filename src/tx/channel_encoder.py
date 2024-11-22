@@ -19,7 +19,7 @@ class PolarEncoder():
         derive_parity_check_direct():
             Creates the parity-check matrix from the full encoding matrix.
     """
-    def __init__(self, vec_polar_info_indices):
+    def __init__(self, vec_polar_info_indices, len_logn):
         """
         Initialize the PolarEncoder with necessary parameters.
 
@@ -38,10 +38,11 @@ class PolarEncoder():
         self.matG_NxN = None
         self.matHt = None
 
-    def encode_chain(self, uncoded_data, len_logn):
-        # Function must use generic name 'encode_chain' to ensure abstraction consistency (later on)!
         self.create_polar_matrices(int(len_logn))
-        return self.polar_encode(uncoded_data)
+
+    def encode_chain(self, encoded_data, uncoded_data):
+        # Function must use generic name 'encode_chain' to ensure abstraction consistency (later on)!
+        encoded_data[:] = self.polar_encode(uncoded_data)
 
     def polar_encode(self, uncoded_data):
         """
