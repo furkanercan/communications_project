@@ -27,10 +27,10 @@ mod_config = config["mod"]
 sim_config = config["sim"]
 
 sim = Simulation(sim_config, output_dir)
-code = PolarCode(code_config) # This need to be in receiver??
-transmitter = Transmitter(code.info_indices, code.len_logn)
+code = PolarCode(code_config) 
+transmitter = Transmitter(mod_config, code.info_indices, code.len_logn)
 channel = ChannelAWGN(channel_config)
-receiver = Receiver(code.len_n, code.len_k, code.frozen_bits, code.qtz_enable, code.qtz_int_max, code.qtz_int_min)
+receiver = Receiver(mod_config, code.len_n, code.len_k, code.frozen_bits, code.qtz_enable, code.qtz_int_max, code.qtz_int_min)
 
 len_k = code.len_k
 status_msg, prev_status_msg = [], []
@@ -47,7 +47,7 @@ for idx, (stdev, var) in enumerate(zip(channel.stdev, channel.variance)):
 
         transmitter.tx_chain(info_data)
         
-        received_data = channel.apply_awgn(transmitter.modulated_data, stdev)
+        received_data = channel.apply_awgn(transmitter.modulated_data, stdev, var)
         
         receiver.rx_chain(received_data, var)
         

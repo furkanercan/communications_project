@@ -4,7 +4,7 @@ from src.rx.decoders.polar.sc import PolarDecoder_SC
 from src.rx.demodulator import Demodulator
 
 class Receiver:
-    def __init__(self, len_n, len_k, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min):
+    def __init__(self, mod_config, len_n, len_k, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min):
         """
         Initialize the Receiver with a decoder (abstraction).
 
@@ -19,7 +19,7 @@ class Receiver:
         self.len_n = len_n
         self.len_k = len_k
         self.len_logn = int(math.log2(len_n))
-        self.demodulator = Demodulator()
+        self.demodulator = Demodulator(mod_config)
         self.decoder = PolarDecoder_SC(self.len_logn, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min)
         self.decoder.initialize_decoder()
         
@@ -34,6 +34,6 @@ class Receiver:
             list: Decoded data.
         """
         # Placeholder for more functionalities (e.g., channel equalization)
-        self.demodulator.softDemod_bpsk(self.vec_llr, channel_data, awgn_var)
+        self.demodulator.demodulate(self.vec_llr, channel_data, awgn_var)
         self.decoder.dec_sc(self.decoded_data, self.vec_llr)
 
