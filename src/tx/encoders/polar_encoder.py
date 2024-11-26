@@ -5,7 +5,7 @@ class PolarEncoder():
     PolarEncoder handles encoding and parity-check matrix creation for polar codes.
 
     Attributes:
-        vec_polar_info_indices (list): Indices of information bits.
+        info_indices (list): Indices of information bits.
         vec_polar_non_info_indices (list): Indices of non-information (frozen) bits.
         matG_kxN (ndarray): The pruned polar encoding matrix (kxN).
         matG_NxN (ndarray): The full polar encoding matrix (NxN).
@@ -19,26 +19,26 @@ class PolarEncoder():
         derive_parity_check_direct():
             Creates the parity-check matrix from the full encoding matrix.
     """
-    def __init__(self, vec_polar_info_indices, len_logn):
+    def __init__(self, code):
         """
         Initialize the PolarEncoder with necessary parameters.
 
         Args:
-            vec_polar_info_indices (list): Indices of information bits.
+            info_indices (list): Indices of information bits.
 
         Raises:
-            TypeError: If vec_polar_info_indices is not a list.
+            TypeError: If info_indices is not a list.
         """
-        if not isinstance(vec_polar_info_indices, (list, np.ndarray)):
-            raise TypeError("vec_polar_info_indices must be a list or a NumPy array.")
+        if not isinstance(code.code.info_indices, (list, np.ndarray)):
+            raise TypeError("info_indices must be a list or a NumPy array.")
 
-        self.vec_polar_info_indices = vec_polar_info_indices
+        self.info_indices = code.info_indices
         self.vec_polar_non_info_indices = None
         self.matG_kxN = None
         self.matG_NxN = None
         self.matHt = None
 
-        self.create_polar_matrices(int(len_logn))
+        self.create_polar_matrices(int(code.len_logn))
 
     def encode_chain(self, encoded_data, uncoded_data):
         # Function must use generic name 'encode_chain' to ensure abstraction consistency (later on)!
@@ -80,7 +80,7 @@ class PolarEncoder():
             matG = np.kron(matG, matG_core)
 
         self.matG_NxN = matG                # Full NxN G matrix
-        self.matG_kxN = matG[self.vec_polar_info_indices] # Pruned G matrix (kxN)
+        self.matG_kxN = matG[self.info_indices] # Pruned G matrix (kxN)
         self.derive_parity_check_direct()
 
     def derive_parity_check_direct(self):
@@ -95,7 +95,7 @@ class PolarEncoder():
 
         N = self.matG_NxN.shape[1] # Total number of columns
         all_indices = set(range(N)) # Create a list of all indices
-        self.vec_polar_non_info_indices = list(all_indices - set(self.vec_polar_info_indices)) # Determine the columns not in vec_polar_info_indices
+        self.vec_polar_non_info_indices = list(all_indices - set(self.info_indices)) # Determine the columns not in info_indices
         self.matHt = self.matG_NxN[:, self.vec_polar_non_info_indices] # Select these columns from matG_full and transpose them to form H
 
     def export_matrices(self):

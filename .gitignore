@@ -39,6 +39,7 @@ todo.list
 pytest_cache/
 analyze_stats.py
 profile_output.prof
+temp*
 
 # Generated files
 *.sqlite3

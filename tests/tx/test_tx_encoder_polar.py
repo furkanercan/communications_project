@@ -1,6 +1,6 @@
 import numpy as np
 # from src.common.create_polar_indices import create_polar_indices
-from src.tx.channel_encoder import PolarEncoder
+from src.tx.encoders.polar_encoder import PolarEncoder
 
 def test_polar_encoder():
     # Initialize test variables

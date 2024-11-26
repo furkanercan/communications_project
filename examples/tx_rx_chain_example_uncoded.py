@@ -10,7 +10,7 @@ import math
 import string
 import time
 
-from src.code.uncoded import Uncoded
+from src.coding.uncoded import Uncoded
 from src.tx.tx import Transmitter
 from src.rx.rx import Receiver
 from src.sim.sim import Simulation

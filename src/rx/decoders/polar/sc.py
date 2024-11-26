@@ -3,9 +3,9 @@ import math
 from numba import njit
 
 class PolarDecoder_SC():
-    def __init__(self, len_logn, vec_polar_isfrozen, qtz_enable, qtz_int_max, qtz_int_min):
-        self.len_logn = int(len_logn)
-        self.vec_polar_isfrozen = vec_polar_isfrozen
+    def __init__(self, code):
+        self.len_logn = int(code.len_logn)
+        self.vec_polar_isfrozen = code.frozen_bits
         self.mem_alpha = None
         self.mem_beta_l = None
         self.mem_beta_r = None
@@ -13,9 +13,9 @@ class PolarDecoder_SC():
         self.vec_dec_sch_size = []
         self.vec_dec_sch_depth = []
         self.vec_dec_sch_dir = []
-        self.qtz_enable = qtz_enable
-        self.qtz_int_max = qtz_int_max
-        self.qtz_int_min = qtz_int_min
+        self.qtz_enable = code.qtz_enable
+        self.qtz_int_max = code.qtz_int_max
+        self.qtz_int_min = code.qtz_int_min
         self.use_optimized = 1
 
     def initialize_decoder(self):

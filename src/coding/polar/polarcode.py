@@ -6,20 +6,21 @@ class PolarCode:
         """
         Initialize the PolarCode with information indices and frozen bits.
         """
-        self.reliability_indices = config["polar"]["rel_idx"]
-        self.len_n = config["polar"]["len_n"]
-        self.len_logn = config["polar"]["len_logn"]
         self.len_k = config["len_k"]
-        self.en_crc = config["polar"]["crc"]["enable"]
-        self.len_r = config["polar"]["crc"]["length"]
+
+        self.reliability_indices = config["polar"]["rel_idx"]
+        self.len_n               = config["polar"]["len_n"]
+        self.len_logn            = config["polar"]["len_logn"]
+        self.en_crc              = config["polar"]["crc"]["enable"]
+        self.len_r               = config["polar"]["crc"]["length"]
         
+        self.qtz_enable          = config["polar"]["quantize"]["enable"]
+        self.qtz_chn_max         = config["polar"]["quantize"]["chnl_upper"]
+        self.qtz_chn_min         = config["polar"]["quantize"]["chnl_lower"]
+        self.qtz_int_max         = config["polar"]["quantize"]["intl_max"]
+        self.qtz_int_min         = config["polar"]["quantize"]["intl_min"]
+
         self.frozen_bits, self.info_indices = self.create_polar_indices()
-        
-        self.qtz_enable = config["polar"]["quantize"]["enable"]
-        self.qtz_chn_max = config["polar"]["quantize"]["chnl_upper"]
-        self.qtz_chn_min = config["polar"]["quantize"]["chnl_lower"]
-        self.qtz_int_max = config["polar"]["quantize"]["intl_max"]
-        self.qtz_int_min = config["polar"]["quantize"]["intl_min"]
 
 
     def create_polar_indices(self):
