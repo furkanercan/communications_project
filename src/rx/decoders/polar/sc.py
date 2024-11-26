@@ -26,6 +26,8 @@ class PolarDecoder_SC():
         self.mem_beta_l = [np.zeros((2**i), dtype=np.bool_) for i in range(self.len_logn + 1)]
         self.mem_beta_r = [np.zeros((2**i), dtype=np.bool_) for i in range(self.len_logn + 1)]
 
+    def decode_chain(self, vec_decoded, vec_llr):
+        self.dec_sc(vec_decoded, vec_llr)
 
     def create_decoding_schedule(self):
         sch_limit = self.len_logn

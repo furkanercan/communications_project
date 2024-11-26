@@ -5,8 +5,11 @@
     ],
     "code": {
         "type": "UNCODED",
+        "len_k": 128,
         "uncoded":{
-            "len_k": 128,
+            "decoder":{
+                "algorithm": "None"
+            }
         }
     },
     "mod": {

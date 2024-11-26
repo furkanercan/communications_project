@@ -35,5 +35,5 @@ class Receiver:
         """
         # Placeholder for more functionalities (e.g., channel equalization)
         self.demodulator.demodulate(self.vec_llr, channel_data, awgn_var)
-        self.decoder.dec_sc(self.decoded_data, self.vec_llr)
+        self.decoder.decode_chain(self.decoded_data, self.vec_llr)
 

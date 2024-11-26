@@ -1,5 +1,6 @@
 import numpy as np
 from src.rx.decoders.polar.sc import PolarDecoder_SC
+from src.rx.decoders.uncoded_decoder import UncodedDecoder
 
 def create_decoder(code):
     if code.type == "polar":
@@ -7,6 +8,8 @@ def create_decoder(code):
             return PolarDecoder_SC(code)
         else:
             raise ValueError(f"Unsupported polar decoder type: {code.decoder}")    
+    elif code.type == "uncoded":
+        return UncodedDecoder()
     else:
         raise ValueError(f"Unsupported code type: {code.type}")
 

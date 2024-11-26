@@ -1,59 +1,33 @@
 {
     "_comments": [
-        "This is the default configuration file.",
-        "Refer to ref_config_*.json5 files in the root directory for specific configurations with reference information."
+        "This is the referebce configuration file for the following scheme.",
+        "UNCODED"
     ],
     "code": {
-        "type": "POLAR",
-        "len_k": 512,
-        "polar":{
-            "polar_file": "src/lib/ecc/polar/3gpp/n1024_3gpp.pc",
-            "crc":{
-                "enable": false,
-                "length" : 8
-            },
+        "type": "UNCODED",
+        "len_k": 128,
+        "uncoded":{
             "decoder":{
-                "algorithm": "SC",
-                "flip_max_iters": 30
-            },
-            "quantize": {
-                "enable": false,
-                "bits_chnl": 5,
-                "bits_intl": 6,
-                "bits_frac": 1
-            },
-            "fast_enable": {
-                "rate0": false,
-                "rate1": false,
-                "rep": false,
-                "spc": false,
-                "ml_0011": false,
-                "ml_0101": false
-            },
-            "fast_max_size": {
-                "rate0": 1024,
-                "rate1": 1024,
-                "rep": 1024,
-                "spc": 1024
+                "algorithm": "None"
             }
         }
     },
     "mod": {
-        "type": "16QAM",
+        "type": "BPSK",
         "demod_type": "soft"
     },
     "channel": {
         "type": "SNR",
         "snr": {
             "start": -2,
-            "end": -2,
-            "step": 0.25
+            "end": 15,
+            "step": 0.5
         }
     },
     "sim": {
         "loop": {
-            "num_frames": 1000,
-            "num_errors": 0,
+            "num_frames": 10000,
+            "num_errors": 50,
             "max_frames": 10000000
         },
         "save": {
