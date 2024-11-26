@@ -10,7 +10,7 @@ import math
 import string
 import time
 
-from src.common.polar.polarcode import PolarCode
+from src.code.uncoded import Uncoded
 from src.tx.tx import Transmitter
 from src.rx.rx import Receiver
 from src.sim.sim import Simulation
@@ -35,7 +35,7 @@ mod_config = config["mod"]
 sim_config = config["sim"]
 
 sim = Simulation(sim_config, output_dir)
-code = PolarCode(code_config) 
+code = Uncoded(code_config) 
 transmitter = Transmitter(mod_config, code.info_indices, code.len_logn)
 channel = ChannelAWGN(channel_config)
 receiver = Receiver(mod_config, code.len_n, code.len_k, code.frozen_bits, code.qtz_enable, code.qtz_int_max, code.qtz_int_min)

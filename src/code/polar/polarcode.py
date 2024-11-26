@@ -9,7 +9,7 @@ class PolarCode:
         self.reliability_indices = config["polar"]["rel_idx"]
         self.len_n = config["polar"]["len_n"]
         self.len_logn = config["polar"]["len_logn"]
-        self.len_k = config["polar"]["len_k"]
+        self.len_k = config["len_k"]
         self.en_crc = config["polar"]["crc"]["enable"]
         self.len_r = config["polar"]["crc"]["length"]
         

@@ -5,6 +5,7 @@ from src.utils.validation.validate_keys import *
 def validate_config_code(config):
     required_keys = {
         "type": str,
+        "len_k": int,
     }
 
     optional_keys = {
@@ -12,7 +13,11 @@ def validate_config_code(config):
     }
 
     validate_required_keys(config, required_keys, "code")
-        
+    
+    len_k = config["len_k"]
+    if len_k < 0:
+        raise ValueError(f"'polar.len_k' ({len_k}) must be a non-negative value.")
+
     if "polar" in config:
         config["polar"] = validate_config_polar(config["polar"])
     # Other codes will follow here. (LDPC, Turbo, CRC, RS, BCH, OSD, etc.)

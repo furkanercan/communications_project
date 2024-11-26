@@ -5,9 +5,9 @@
     ],
     "code": {
         "type": "POLAR",
-        "len_k": 512,
         "polar":{
             "polar_file": "src/lib/ecc/polar/3gpp/n1024_3gpp.pc",
+            "len_k": 512,
             "crc":{
                 "enable": false,
                 "length" : 8

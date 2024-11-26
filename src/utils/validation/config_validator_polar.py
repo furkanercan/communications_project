@@ -4,12 +4,11 @@ import math
 from src.utils.validation.validate_keys import validate_required_keys
 from src.utils.validation.validate_keys import validate_optional_keys
 from src.utils.validation.import_polarcode_file import import_polarcode_file
-from src.common.crc import instantiate_crcs
+from src.code.crc import instantiate_crcs
 
 def validate_config_polar(config):
     required_keys = {
         "polar_file": str,
-        "len_k": int
     }
 
     optional_keys = {
@@ -21,11 +20,6 @@ def validate_config_polar(config):
     }
 
     validate_required_keys(config, required_keys, "polar")
-
-    len_k = config["len_k"]
-
-    if len_k < 0:
-        raise ValueError(f"'polar.len_k' ({len_k}) must be a non-negative value.")
     
     config["rel_idx"] = import_polarcode_file(config["polar_file"])
     config["len_n"] = config["rel_idx"][0] + 1
