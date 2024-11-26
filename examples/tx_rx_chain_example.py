@@ -1,3 +1,10 @@
+import sys
+import os
+
+# Add the src directory to the Python path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
+
+
 import numpy as np
 import math
 import string
@@ -15,6 +22,7 @@ from src.utils.timekeeper import *
 
 
 seed = 42
+np.random.seed(seed)
 config_file = "config.json5"
 config = ConfigLoader(config_file).get()
 run_id = create_run_id(config["code"]["type"], seed)
@@ -44,14 +52,23 @@ for idx, (stdev, var) in enumerate(zip(channel.stdev, channel.variance)):
         # info_data = np.zeros(len_k)
         # info_data = np.random.choice([0, 1], size=(len_k))
         info_data[:] = np.random.randint(0, 2, size=len_k)
-
+        # print(info_data)
         transmitter.tx_chain(info_data)
-        
+        encoded_data = [int(x) for x in transmitter.encoded_data]
+        # print("transmitter.encoded_data:", encoded_data)
         received_data = channel.apply_awgn(transmitter.modulated_data, stdev, var)
-        
+        # print("received_data:", received_data)
         receiver.rx_chain(received_data, var)
-        
-        sim.collect_run_stats(idx, 0, 0, info_data, receiver.decoded_data)
+        demodualted_data = [int(x) for x in receiver.vec_llr]
+        decoded_data = [int(x) for x in receiver.decoded_data]
+        # print("demodualted_data:", demodualted_data)
+        # print("decoded_data:", decoded_data)
+        sim.collect_run_stats(idx, 1023, 1, info_data, receiver.decoded_data)
+        # print("sim.count_bit_error", sim.count_bit_error, "\n")
+        # print("sim.count_frame_error", sim.count_frame_error, "\n")
+        # print("sim.count_dec_steps", sim.count_dec_steps, "\n")
+        # print("sim.count_dec_iters", sim.count_dec_iters, "\n")
+        # print("sim.count_frame", sim.count_frame, "\n")
 
         if(sim.count_frame[idx] % 100 == 0):
             time_end = time.time()
@@ -62,5 +79,6 @@ for idx, (stdev, var) in enumerate(zip(channel.stdev, channel.variance)):
 
     time_end = time.time()
     time_elapsed = time_end - time_start
+    sim.update_run_results(idx, len_k)
     status_msg = sim.display_run_results_perm(idx, snr_point[idx], format_time(time_elapsed), prev_status_msg)
     prev_status_msg = status_msg

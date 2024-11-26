@@ -24,6 +24,12 @@ class Transmitter:
             self.modulated_data = np.empty(self.len_n, dtype=int)  # Real values for BPSK
         elif self.modulation_scheme == "qpsk":
             self.modulated_data = np.empty(self.len_n // 2, dtype=complex)  # Complex values for QPSK
+        elif self.modulation_scheme == "16qam":
+            self.modulated_data = np.empty(self.len_n // 4, dtype=complex)  # Complex values for QPSK
+        elif self.modulation_scheme == "64qam":
+            self.modulated_data = np.empty(self.len_n // 6, dtype=complex)  # Complex values for QPSK
+        elif self.modulation_scheme == "256qam":
+            self.modulated_data = np.empty(self.len_n // 8, dtype=complex)  # Complex values for QPSK
         else:
             raise ValueError(f"Unsupported modulation scheme: {self.modulation_scheme}")
 

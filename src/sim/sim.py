@@ -47,7 +47,7 @@ class Simulation:
         self.ber[idx]  = self.count_bit_error[idx]/(self.count_frame[idx] * len_k)
         self.bler[idx] = self.count_frame_error[idx]/self.count_frame[idx]
         self.avg_steps[idx] = self.count_dec_steps[idx]/self.count_frame[idx]
-        self.avg_iters[idx] = self.count_dec_steps[idx]/self.count_frame[idx]
+        self.avg_iters[idx] = self.count_dec_iters[idx]/self.count_frame[idx]
 
     def display_run_results_temp(self, idx, snr_point, time_elapsed, prev_status_msg):
         status_msg = f"{snr_point:.3e}   {self.ber[idx]:.5e}   {self.bler[idx]:.5e}   {self.avg_iters[idx]:.2e}   {self.count_frame[idx]:.2e}   {self.count_frame_error[idx]:.2e}   {time_elapsed}"
@@ -56,8 +56,8 @@ class Simulation:
         print(status_msg + status_pad, end=end_char, flush=True)
         return status_msg
 
-    def display_run_results_perm(self, idx, snr_point, time_elapsed, status_msg):
-        prev_status_msg = status_msg
+    def display_run_results_perm(self, idx, snr_point, time_elapsed, prev_status_msg):
+        
         status_msg = f"{snr_point:.3e}   {self.ber[idx]:.5e}   {self.bler[idx]:.5e}   {self.avg_iters[idx]:.2e}   {self.count_frame[idx]:.2e}   {self.count_frame_error[idx]:.2e}   {time_elapsed}"
         status_pad = ' ' * max(0, len(prev_status_msg) - len(status_msg))
         end_char = '\n'
@@ -66,6 +66,7 @@ class Simulation:
                 file_o.write(status_msg + "\n")
 
         print(status_msg + status_pad, end=end_char, flush=True)
+        prev_status_msg = status_msg
         return status_msg
     
 

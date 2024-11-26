@@ -8,7 +8,7 @@ class Modulator:
         self.validate_scheme()
 
     def validate_scheme(self):
-        valid_schemes = ["bpsk", "qpsk", "16qam", "64qam"]
+        valid_schemes = ["bpsk", "qpsk", "16qam", "64qam", "256qam"]
         if self.scheme not in valid_schemes:
             raise ValueError(f"Unsupported modulation scheme: {self.scheme}. Supported schemes: {valid_schemes}")
 
@@ -26,10 +26,12 @@ class Modulator:
             self.mod_bpsk(modulated_data, bool_data)
         elif self.scheme == "qpsk":
             self.mod_qpsk(modulated_data, bool_data)
-        # elif self.scheme == "16qam":
-        #     self.mod_qam(modulated_data, bool_data)
-        # elif self.scheme == "64qam":
-        #     self.mod_qam(modulated_data, bool_data)
+        elif self.scheme == "16qam":
+            self.mod_mqam(modulated_data, bool_data, 16)
+        elif self.scheme == "64qam":
+            self.mod_mqam(modulated_data, bool_data, 64)
+        elif self.scheme == "256qam":
+            self.mod_mqam(modulated_data, bool_data, 256)
 
     def mod_bpsk(self, modulated_data, bool_data):
         """
@@ -63,3 +65,60 @@ class Modulator:
         i = np.array([mapping[bit] for bit in bool_data[:, 0]])  # In-phase
         q = np.array([mapping[bit] for bit in bool_data[:, 1]])  # Quadrature
         modulated_data[:] =  i + 1j * q
+
+
+    def mod_mqam(self, modulated_data, bool_data, m):
+        """Generalized M-QAM modulation"""
+        
+        # int_list = [int(x) for x in bool_data]
+        # print(int_list)  # Output: [1, 0, 1, 1, 0]
+        
+        ## CHECK these during init, not here.
+        if np.log2(m) % 1 != 0:
+            raise ValueError("Modulation order M must be a power of 2.") #Solve this later.
+
+        num_bits_per_symbol = int(np.log2(m))
+        if len(bool_data) % num_bits_per_symbol != 0:
+            raise ValueError(f"Number of input bits must be divisible by {num_bits_per_symbol} for {m}-QAM.")
+
+        # levels = np.arange(np.sqrt(m) - 1, -np.sqrt(m), step=-2) ##LUT
+        levels = np.array([-3, -1, 3, 1], dtype=int)
+        # print(levels)
+        
+        bool_data = bool_data.reshape(-1, num_bits_per_symbol)
+        # print("bool_data:", bool_data)
+
+        # Split bits for in-phase (real) and quadrature (imaginary) components
+        half_bits = num_bits_per_symbol // 2
+        real_part = bool_data[:, :half_bits]
+        imag_part = bool_data[:, half_bits:]
+
+        # print("real_indices:", real_part)
+        # print("imag_indices:", imag_part)
+        real_indices = np.empty(int(len(bool_data)), dtype=int)
+        imag_indices = np.empty(int(len(bool_data)), dtype=int)
+        for idx, bool_vector in enumerate(real_part):
+            real_int = 0
+            for bit in bool_vector:
+                real_int = (real_int << 1) | bit
+            real_indices[idx] = real_int
+        
+        for idx, bool_vector in enumerate(imag_part):
+            imag_int = 0
+            for bit in bool_vector:
+                imag_int = (imag_int << 1) | bit
+            imag_indices[idx] = imag_int
+
+        # print("real_indices:", real_indices)
+        # print("imag_indices:", imag_indices)
+
+        # Map indices to amplitude levels
+        i = levels[real_indices]
+        q = levels[imag_indices]
+
+        # print("real encoded:", i)
+        # print("imag encoded:", q)
+
+        modulated_data[:] =  i + 1j * q
+
+        # print(modulated_data)

@@ -39,14 +39,14 @@
         }
     },
     "mod": {
-        "type": "QPSK",
+        "type": "16QAM",
         "demod_type": "soft"
     },
     "channel": {
         "type": "SNR",
         "snr": {
             "start": -2,
-            "end": 1,
+            "end": 0,
             "step": 0.25
         }
     },
