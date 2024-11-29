@@ -9,16 +9,23 @@ class Modulator:
 
         if self.scheme == "bpsk":
             self.normalization_factor = 1
+            self.num_constellations = 2
         elif self.scheme == "qpsk":
             self.normalization_factor = 1/np.sqrt(2)
+            self.num_constellations = 4
         elif self.scheme == "16qam":
             self.normalization_factor = 1/np.sqrt(10)
+            self.num_constellations = 16
         elif self.scheme == "64qam":
             self.normalization_factor = 1/np.sqrt(42)
+            self.num_constellations = 64
         elif self.scheme == "256qam":
             self.normalization_factor = 1/np.sqrt(85)
+            self.num_constellations = 256
         else:
             raise ValueError(f"Unsupported modulation scheme: {self.scheme}")
+
+        self.log_num_constellations = int(np.log2(self.num_constellations))
 
     def validate_scheme(self):
         valid_schemes = ["bpsk", "qpsk", "16qam", "64qam", "256qam"]

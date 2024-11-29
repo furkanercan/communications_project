@@ -49,4 +49,4 @@ def test_polar_encoder():
     assert matrices["matHt"].shape == (code.len_n, code.len_k)  
 
 
-test_polar_encoder()
+# test_polar_encoder()
