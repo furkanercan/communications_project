@@ -3,18 +3,24 @@ from src.rx.demodulator import Demodulator
 
 
 def test_demodulator_bpsk_hard():
-    demodulator = Demodulator()
-    data = np.array([-4, 0, 3, 8, 1, -9.1, 0.5, 0.001])
-    soln = np.array([1, 0, 0, 0, 0, 1, 0, 0])
-    demod_data = demodulator.hardDemod_bpsk(data)
+    config = {'type': 'bpsk', 
+              'demod_type': 'hard'}
+    demodulator = Demodulator(config)
+    input_data = np.array([-4, 0, 3, 8, 1, -9.1, 0.5, 0.001])
+    demod_data = np.empty_like(input_data)
+    soln_data = np.array([1, 0, 0, 0, 0, 1, 0, 0])
+    demodulator.hardDemod_bpsk(demod_data, input_data)
     
-    np.testing.assert_array_equal(demod_data, soln, err_msg="BPSK hard demodulator failed")
+    np.testing.assert_array_equal(demod_data, soln_data, err_msg="BPSK hard demodulator failed")
 
 def test_demodulator_bpsk_soft():
-    demodulator = Demodulator()
-    data = np.array([-4, 0, 3, 8, 1, -9.1, 0.5, 0.001])
+    config = {'type': 'bpsk', 
+              'demod_type': 'soft'}
+    demodulator = Demodulator(config)
+    input_data = np.array([-4, 0, 3, 8, 1, -9.1, 0.5, 0.001])
+    demod_data = np.empty_like(input_data)
     variance = 0.25
-    soln = 2*data/variance
-    demod_data = demodulator.softDemod_bpsk(data, variance)
+    soln_data = 2*input_data/variance
+    demodulator.softDemod_bpsk(demod_data, input_data, variance)
     
-    np.testing.assert_array_equal(demod_data, soln, err_msg="BPSK soft demodulator failed")
+    np.testing.assert_array_equal(demod_data, soln_data, err_msg="BPSK soft demodulator failed")

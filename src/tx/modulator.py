@@ -7,6 +7,19 @@ class Modulator:
         self.scheme = config["type"].lower()
         self.validate_scheme()
 
+        if self.scheme == "bpsk":
+            self.normalization_factor = 1
+        elif self.scheme == "qpsk":
+            self.normalization_factor = 1/np.sqrt(2)
+        elif self.scheme == "16qam":
+            self.normalization_factor = 1/np.sqrt(10)
+        elif self.scheme == "64qam":
+            self.normalization_factor = 1/np.sqrt(42)
+        elif self.scheme == "256qam":
+            self.normalization_factor = 1/np.sqrt(85)
+        else:
+            raise ValueError(f"Unsupported modulation scheme: {self.scheme}")
+
     def validate_scheme(self):
         valid_schemes = ["bpsk", "qpsk", "16qam", "64qam", "256qam"]
         if self.scheme not in valid_schemes:
@@ -51,7 +64,7 @@ class Modulator:
         
         bool_data = np.asarray(bool_data) # Ensure data type
         
-        modulated_data[:] = 1 - 2 * bool_data
+        modulated_data[:] = 1 - 2 * bool_data #Special case: normalization factor is 1.
 
     def mod_qpsk(self, modulated_data, bool_data):
         """QPSK modulation: Map bits to quadrature phase"""
@@ -64,7 +77,7 @@ class Modulator:
                    1: -1}
         i = np.array([mapping[bit] for bit in bool_data[:, 0]])  # In-phase
         q = np.array([mapping[bit] for bit in bool_data[:, 1]])  # Quadrature
-        modulated_data[:] =  i + 1j * q
+        modulated_data[:] =  (i + 1j * q)*self.normalization_factor
 
 
     def mod_mqam(self, modulated_data, bool_data, m):
@@ -119,6 +132,6 @@ class Modulator:
         # print("real encoded:", i)
         # print("imag encoded:", q)
 
-        modulated_data[:] =  i + 1j * q
+        modulated_data[:] =  (i + 1j * q)*self.normalization_factor
 
         # print(modulated_data)

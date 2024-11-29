@@ -1,34 +1,52 @@
 import numpy as np
+from src.coding.coding import Code
+from src.utils.validation.config_validator import validate_config_code
 from src.rx.decoders.polar.sc import PolarDecoder_SC
 
-def test_decoder_initialization():
-    # Parameters
-    len_logn = 3
-    vec_polar_isfrozen = [1, 0, 1, 0, 0, 1, 0, 1]  # Example frozen bit vector
-    qbits_enable = False
-    quant_intl_max = 7
-    quant_intl_min = -7
+#Initialize code
+code_config = {
+    "type": "POLAR",
+    "len_k": 512,
+    "polar":{
+        "polar_file": "src/lib/ecc/polar/3gpp/n1024_3gpp.pc",
+        "crc":{
+            "enable": False,
+            "length" : 8
+        },
+        "decoder":{
+            "algorithm": "SC",
+            "flip_max_iters": 30
+        },
+        "quantize": {
+            "enable": False,
+            "bits_chnl": 5,
+            "bits_intl": 6,
+            "bits_frac": 1
+        },
+    }
+}
+validate_config_code(code_config)
+code = Code(code_config) 
 
-    # Initialize the decoder
-    decoder = PolarDecoder_SC(len_logn, vec_polar_isfrozen, qbits_enable, quant_intl_max, quant_intl_min)
+
+
+
+def test_decoder_initialization():
+    # Initialize decoder
+    decoder = PolarDecoder_SC(code)
 
     # Test attribute initialization
-    assert decoder.len_logn == len_logn
-    assert decoder.vec_polar_isfrozen == vec_polar_isfrozen
-    assert decoder.qbits_enable == qbits_enable
-    assert decoder.quant_intl_max == quant_intl_max
-    assert decoder.quant_intl_min == quant_intl_min
+    assert np.array_equal(decoder.vec_polar_isfrozen, code.frozen_bits)
+    assert decoder.len_logn     == code.len_logn
+    assert decoder.qtz_enable   == code.qtz_enable
+    assert decoder.qtz_int_max  == code.qtz_int_max
+    assert decoder.qtz_int_min  == code.qtz_int_min
+
+
 
 def test_create_decoding_schedule():
-    # Parameters
-    len_logn = 3
-    vec_polar_isfrozen = [1, 0, 1, 0, 0, 1, 0, 1]  # Example frozen bit vector
-    qbits_enable = False
-    quant_intl_max = 7
-    quant_intl_min = -7
-
     # Initialize the decoder
-    decoder = PolarDecoder_SC(len_logn, vec_polar_isfrozen, qbits_enable, quant_intl_max, quant_intl_min)
+    decoder = PolarDecoder_SC(code)
 
     # Test schedule creation
     decoder.initialize_decoder()
@@ -38,15 +56,8 @@ def test_create_decoding_schedule():
     assert len(decoder.vec_dec_sch_dir) == len(decoder.vec_dec_sch), "Direction vector length mismatch."
 
 def test_dec_sc_f():
-    # Parameters
-    len_logn = 3
-    vec_polar_isfrozen = [1, 0, 1, 0, 0, 1, 0, 1]  # Example frozen bit vector
-    qbits_enable = True
-    quant_intl_max = 7
-    quant_intl_min = -7
-
     # Initialize the decoder
-    decoder = PolarDecoder_SC(len_logn, vec_polar_isfrozen, qbits_enable, quant_intl_max, quant_intl_min)
+    decoder = PolarDecoder_SC(code)
     decoder.initialize_decoder()
 
     # Example inputs for dec_sc_f
@@ -55,7 +66,7 @@ def test_dec_sc_f():
     decoder.mem_alpha[stage_depth] = np.array([2.0, -3.0, 1.0, -1.0])  # Set example alpha values
 
     # Perform F-node computation
-    decoder.dec_sc_f(stage_size, stage_depth, is_quantized=True, max_value=quant_intl_max)
+    decoder.dec_sc_f(stage_size, stage_depth, is_quantized=True, max_value=code.qtz_int_max)
 
     # Check the results
     expected_result = np.array([1.0, 1.0])  # Expected output after F-node computation
@@ -66,22 +77,21 @@ def test_dec_sc_f():
         err_msg="F-node computation failed."
     )
 
+
+
 def test_dec_sc():
-    # Parameters
-    len_logn = 3
-    vec_llr = np.random.randn(2**len_logn)  # Random LLR values
-    vec_polar_isfrozen = [1, 0, 1, 0, 0, 1, 0, 1]  # Example frozen bit vector
-    qbits_enable = False
-    quant_intl_max = 7
-    quant_intl_min = -7
+    # I/O
+    vec_llr = np.random.randn(2**code.len_logn)  # Random LLR values
+    vec_decoded = np.empty(code.len_k, dtype=bool)
 
     # Initialize the decoder
-    decoder = PolarDecoder_SC(len_logn, vec_polar_isfrozen, qbits_enable, quant_intl_max, quant_intl_min)
+    decoder = PolarDecoder_SC(code)
     decoder.initialize_decoder()
 
+
     # Test decoding
-    vec_decoded = decoder.dec_sc(vec_llr)
+    decoder.dec_sc(vec_decoded, vec_llr)
 
     # Check the length of the decoded vector
-    num_info_bits = sum(1 for bit in vec_polar_isfrozen if bit == 0)
+    num_info_bits = sum(1 for bit in code.code.frozen_bits if bit == 0)
     assert len(vec_decoded) == num_info_bits, "Decoded vector length mismatch."

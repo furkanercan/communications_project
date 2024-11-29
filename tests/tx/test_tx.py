@@ -1,22 +1,53 @@
 import numpy as np
 # from src.common.create_polar_indices import create_polar_indices
 from src.tx.tx import Transmitter
+from src.coding.coding import Code
+from src.utils.validation.config_validator import validate_config_code
+
+#Initialize code
+code_config = {
+    "type": "POLAR",
+    "len_k": 512,
+    "polar":{
+        "polar_file": "src/lib/ecc/polar/3gpp/n1024_3gpp.pc",
+        "crc":{
+            "enable": False,
+            "length" : 8
+        },
+        "decoder":{
+            "algorithm": "SC",
+            "flip_max_iters": 30
+        },
+        "quantize": {
+            "enable": False,
+            "bits_chnl": 5,
+            "bits_intl": 6,
+            "bits_frac": 1
+        },
+    }
+}
+
+mod_config = {
+    "type": "16QAM",
+    "demod_type": "soft"
+
+}
+validate_config_code(code_config)
+code = Code(code_config) 
 
 def test_transmitter():
     # Initialize test variables
-    len_logn = 3
-    vec_polar_info_indices = [3, 5, 6, 7]
-    uncoded_data = [1, 0, 1, 1]
+    uncoded_data = np.random.randint(0, 2, size=code.len_k)
     
     # Instantiate and call class
-    transmitter = Transmitter(vec_polar_info_indices,len_logn)
-    transmitted_data = transmitter.tx_chain(uncoded_data)
+    transmitter = Transmitter(mod_config, code)
+    transmitter.tx_chain(uncoded_data)
     
     # Test the outcome
-    assert len(transmitted_data) == 8  # Block length for len_logn=3
+    assert len(transmitter.encoded_data) == code.len_n  # Block length for len_logn=3
     # assert (transmitted_data == (np.array(uncoded_data) @ transmitter.encoder.matG_kxN) % 2).all()
 
     matrices = transmitter.encoder.export_matrices()
-    assert matrices["matG_NxN"].shape == (8, 8)
-    assert matrices["matG_kxN"].shape == (4, 8)
-    assert matrices["matHt"].shape == (8, 4)  # Assuming 4 non-info bits
+    assert matrices["matG_NxN"].shape == (code.len_n, code.len_n)
+    assert matrices["matG_kxN"].shape == (code.len_k, code.len_n)
+    assert matrices["matHt"].shape == (code.len_n, code.len_k)  # Assuming 4 non-info bits
