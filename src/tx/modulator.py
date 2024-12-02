@@ -52,6 +52,8 @@ class Modulator:
             self.mod_mqam(modulated_data, bool_data, 64)
         elif self.scheme == "256qam":
             self.mod_mqam(modulated_data, bool_data, 256)
+        else:
+            raise ValueError(f"Unsupported modulation scheme: {self.scheme}")
 
     def mod_bpsk(self, modulated_data, bool_data):
         """

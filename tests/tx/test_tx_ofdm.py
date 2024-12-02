@@ -1,0 +1,23 @@
+import pytest
+import numpy as np
+from src.tx.tx_ofdm import OFDMTransmitter
+from src.common.odfm import OFDM
+
+config = {
+    "num_subcarriers": 16,
+    "cyclic_prefix_length": 4
+}
+
+def test_transmitter():
+    # Create an OFDM instance and transmitter
+    ofdm = OFDM(config)
+    transmitter = OFDMTransmitter(ofdm)
+    
+    # Generate random modulated data (64 symbols for BPSK)
+    modulated_data = 1 - 2 * np.random.randint(0, 2, 64)
+    
+    # Transmit the data
+    transmitted_signal = transmitter.transmit(modulated_data)
+    
+    # Assert the transmitted signal has the expected shape (time-domain + CP)
+    assert transmitted_signal.shape == (20,)  # 16 subcarriers + 4 CP

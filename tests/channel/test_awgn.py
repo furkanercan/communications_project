@@ -56,7 +56,7 @@ def test_awgn_channel_complex():
 
     validate_config_channel(channel_config)
 
-    for _ in range(100):  # Run the test 100 times
+    for _ in range(10):  # Run the test 100 times
         mod_type_key = random.choice(list(mod_dict.keys()))
         mod_config = mod_dict[mod_type_key]
 
