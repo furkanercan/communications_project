@@ -102,6 +102,16 @@ def validate_config_sim(config):
     return config
 
 
+def validate_config_ofdm(config):
+    required_keys = {
+        "num_subcarriers": int,  
+        "cyclic_prefix_length": int    
+    }
+
+    validate_required_keys(config, required_keys, "ofdm")
+
+    return config
+
 
 def validate_config_sim_loop(config):
     required_keys = {

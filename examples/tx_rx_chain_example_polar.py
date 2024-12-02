@@ -33,6 +33,7 @@ code_config = config["code"]
 channel_config = config["channel"]
 mod_config = config["mod"]
 sim_config = config["sim"]
+ofdm_config = config["ofdm"]
 
 sim = Simulation(sim_config, output_dir)
 code = Code(code_config) 

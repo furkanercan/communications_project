@@ -2,7 +2,9 @@ import numpy as np
 import math
 
 class ChannelAWGN:
-    def __init__(self, config):
+    def __init__(self, config, seed=None):
+        self.seed = seed
+        np.random.seed(seed)
         self.source = config["type"].lower()
         self.simpoints = config["snr"]["simpoints"]
         self.lenpoints = config["snr"]["len_points"]

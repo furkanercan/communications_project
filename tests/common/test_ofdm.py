@@ -18,7 +18,7 @@ def test_ifft():
     time_domain_signal = ofdm.perform_ifft(frequency_domain_signal)
     
     # Assert that the time-domain signal is the correct length
-    assert time_domain_signal.shape == (16,)
+    assert time_domain_signal.shape == (16,) 
     
 def test_fft():
     # Create an OFDM instance

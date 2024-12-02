@@ -3,7 +3,7 @@ import datetime
 import numpy as np
 
 class Simulation:
-    def __init__(self, config, output_folder, sim_size=50):
+    def __init__(self, config, output_folder="tmp", sim_size=50):
         self.num_frames = config["loop"]["num_frames"]
         self.num_errors = config["loop"]["num_errors"]
         self.max_frames = config["loop"]["max_frames"]
@@ -42,12 +42,23 @@ class Simulation:
         self.count_frame_error[idx] += (1 if (info_data != decoded_data).any() else 0)
         self.count_bit_error[idx]   += np.sum(info_data != decoded_data)
 
+    def get_ber(self, idx, len_k):
+        return self.count_bit_error[idx]/(self.count_frame[idx] * len_k)
+    
+    def get_bler(self, idx):
+        return self.count_frame_error[idx]/self.count_frame[idx]
+    
+    def get_avg_steps(self, idx):
+        return self.count_dec_steps[idx]/self.count_frame[idx]
+    
+    def get_avg_iters(self, idx):
+        return self.count_dec_iters[idx]/self.count_frame[idx]
 
     def update_run_results(self, idx, len_k):
-        self.ber[idx]  = self.count_bit_error[idx]/(self.count_frame[idx] * len_k)
-        self.bler[idx] = self.count_frame_error[idx]/self.count_frame[idx]
-        self.avg_steps[idx] = self.count_dec_steps[idx]/self.count_frame[idx]
-        self.avg_iters[idx] = self.count_dec_iters[idx]/self.count_frame[idx]
+        self.ber[idx]  = self.get_ber(idx,len_k)
+        self.bler[idx] = self.get_bler(idx)
+        self.avg_steps[idx] = self.get_avg_steps(idx)
+        self.avg_iters[idx] = self.get_avg_iters(idx)
 
     def display_run_results_temp(self, idx, snr_point, time_elapsed, prev_status_msg):
         status_msg = f"{snr_point:.3e}   {self.ber[idx]:.5e}   {self.bler[idx]:.5e}   {self.avg_iters[idx]:.2e}   {self.count_frame[idx]:.2e}   {self.count_frame_error[idx]:.2e}   {time_elapsed}"
@@ -72,24 +83,24 @@ class Simulation:
 
     def generate_sim_header(self):
         header_lines = [
-            "#################################################################################",
-            "#                                                                               #",
-            "#  Successive Cancellation Decoder for Polar Codes            __                #",
-            "#  Author: Furkan Ercan                               _(\    |@@|               #",
-            "#                                                    (__/\__ \--/ __            #",
-            "#  Copyright (c) {} Furkan Ercan.                     \___|----|  |   __      #".format(datetime.datetime.now().year),
-            "#  All Rights Reserved.                                  \ }{ /\ )_ / _\ _\     #",
-            "#                                                           /\__/\ \__O (__     #",
-            "#  Version: 0.1                                            (--/\--)    \__/     #",
-            "#                                                          _)(  )(_             #",
-            "#  Licensed under the MIT License                         `---''---`            #",
-            "#  See the LICENSE file for details.                                            #",
-            "#                                                                               #",
-            "#  ASCII Art Source: https://www.asciiart.eu/                                   #",
-            "#                                                                               #",
-            "#################################################################################",
-            "",
-            "SNR (dB)    BER           FER           ITER       Frames     Errors     Time",
+            r"#################################################################################",
+            r"#                                                                               #",
+            r"#  Successive Cancellation Decoder for Polar Codes            __                #",
+            r"#  Author: Furkan Ercan                               _(\    |@@|               #",
+            r"#                                                    (__/\__ \--/ __            #",
+            r"#  Copyright (c) {} Furkan Ercan.                     \___|----|  |   __      #".format(datetime.datetime.now().year),
+            r"#  All Rights Reserved.                                  \ }{ /\ )_ / _\ _\     #",
+            r"#                                                           /\__/\ \__O (__     #",
+            r"#  Version: 0.1                                            (--/\--)    \__/     #",
+            r"#                                                          _)(  )(_             #",
+            r"#  Licensed under the MIT License                         `---''---`            #",
+            r"#  See the LICENSE file for details.                                            #",
+            r"#                                                                               #",
+            r"#  ASCII Art Source: https://www.asciiart.eu/                                   #",
+            r"#                                                                               #",
+            r"#################################################################################",
+            r"",
+            r"SNR (dB)    BER           FER           ITER       Frames     Errors     Time",
         ]
 
         header = "\n".join(header_lines)

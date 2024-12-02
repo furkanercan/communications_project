@@ -4,7 +4,8 @@ VALIDATORS = {
     "code": validate_config_code,           # Validate the 'code' section
     "mod": validate_config_modulator,       # Validate the 'mod' section
     "channel": validate_config_channel,     # Validate the 'channel' section
-    "sim": validate_config_sim              # Validate the 'sim' section
+    "sim": validate_config_sim,              # Validate the 'sim' section
+    "ofdm": validate_config_ofdm              # Validate the 'sim' section
 }
 
 def validate_config(config):
