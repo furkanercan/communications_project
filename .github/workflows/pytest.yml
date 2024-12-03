@@ -25,10 +25,7 @@ jobs:
 
     - name: Set PYTHONPATH using setup.sh
       run: |
-        # chmod +x ./setup.sh  # Make sure setup.sh is executable
-        # ./setup.sh           # Run the script to set PYTHONPATH
-        echo "PYTHONPATH=$(pwd)/src:$PYTHONPATH"
-        # ls
+        export PYTHONPATH=$(pwd)/src:$PYTHONPATH
     
     - name: Run tests
       run: |
