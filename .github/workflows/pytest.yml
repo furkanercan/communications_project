@@ -23,9 +23,11 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt  # Make sure pytest is listed in requirements.txt
 
-    - name: Set PYTHONPATH for src directory
-      run: echo "PYTHONPATH=$(pwd)/src" >> $GITHUB_ENV
-
+    - name: Set PYTHONPATH using setup.sh
+      run: |
+        chmod +x ./setup.sh  # Make sure setup.sh is executable
+        ./setup.sh           # Run the script to set PYTHONPATH
+    
     - name: Run tests
       run: |
         pytest tests/  # This runs all the tests under the 'tests/' folder
