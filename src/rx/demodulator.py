@@ -6,6 +6,25 @@ class Demodulator:
         self.scheme = config["type"].lower()
         self.demod_type = config["demod_type"].lower()
 
+        if self.scheme == "bpsk":
+            self.normalization_factor = 1
+            self.num_constellations = 2
+        elif self.scheme == "qpsk":
+            self.normalization_factor = 1/np.sqrt(2)
+            self.num_constellations = 4
+        elif self.scheme == "16qam":
+            self.normalization_factor = 1/np.sqrt(10)
+            self.num_constellations = 16
+        elif self.scheme == "64qam":
+            self.normalization_factor = 1/np.sqrt(42)
+            self.num_constellations = 64
+        elif self.scheme == "256qam":
+            self.normalization_factor = 1/np.sqrt(85)
+            self.num_constellations = 256
+        else:
+            raise ValueError(f"Unsupported modulation scheme: {self.scheme}")
+
+        self.log_num_constellations = int(np.log2(self.num_constellations))
 
     def demodulate(self, vec_output, input_data, awgn_var=None):
         """
@@ -234,7 +253,7 @@ class Demodulator:
         # def exact_llr_b2(z, sigma2):
         #     num = np.exp(-(np.real(z) + 3)**2 / (2 * sigma2)) + np.exp(-(np.real(z) - 3)**2 / (2 * sigma2))
         #     den = np.exp(-(np.real(z) - 1)**2 / (2 * sigma2)) + np.exp(-(np.real(z) + 1)**2 / (2 * sigma2))
-        #     return np.log(num / den)
+        #     return np.log(num / den) 
 
         # def exact_llr_b3(z, sigma2):
         #     num = np.exp(-(np.imag(z) + 3)**2 / (2 * sigma2)) + np.exp(-(np.imag(z) + 1)**2 / (2 * sigma2))
@@ -247,23 +266,23 @@ class Demodulator:
         #     return np.log(num / den)        
         
         def approx_llr_b1(z, sigma2):
-            num = -np.minimum((np.real(z) + 3)**2,(np.real(z) + 1)**2)
-            den = -np.minimum((np.real(z) - 3)**2, (np.real(z) - 1)**2)
+            num = -np.minimum((np.real(z) + 3*self.normalization_factor)**2,(np.real(z) + 1*self.normalization_factor)**2)
+            den = -np.minimum((np.real(z) - 3*self.normalization_factor)**2, (np.real(z) - 1*self.normalization_factor)**2)
             return (num-den)/(2*sigma2)
 
         def approx_llr_b2(z, sigma2):
-            num = -np.minimum((np.real(z) + 3)**2,(np.real(z) - 3)**2)
-            den = -np.minimum((np.real(z) + 1)**2, (np.real(z) - 1)**2)
+            num = -np.minimum((np.real(z) + 3*self.normalization_factor)**2,(np.real(z) - 3*self.normalization_factor)**2)
+            den = -np.minimum((np.real(z) + 1*self.normalization_factor)**2, (np.real(z) - 1*self.normalization_factor)**2)
             return (num-den)/(2*sigma2)
         
         def approx_llr_b3(z, sigma2):
-            num = -np.minimum((np.imag(z) + 3)**2,(np.imag(z) + 1)**2)
-            den = -np.minimum((np.imag(z) - 3)**2, (np.imag(z) - 1)**2)
+            num = -np.minimum((np.imag(z) + 3*self.normalization_factor)**2,(np.imag(z) + 1*self.normalization_factor)**2)
+            den = -np.minimum((np.imag(z) - 3*self.normalization_factor)**2, (np.imag(z) - 1*self.normalization_factor)**2)
             return (num-den)/(2*sigma2)
 
         def approx_llr_b4(z, sigma2):
-            num = -np.minimum((np.imag(z) + 3)**2,(np.imag(z) - 3)**2)
-            den = -np.minimum((np.imag(z) + 1)**2, (np.imag(z) - 1)**2)
+            num = -np.minimum((np.imag(z) + 3*self.normalization_factor)**2,(np.imag(z) - 3*self.normalization_factor)**2)
+            den = -np.minimum((np.imag(z) + 1*self.normalization_factor)**2, (np.imag(z) - 1*self.normalization_factor)**2)
             return (num-den)/(2*sigma2)
         
 

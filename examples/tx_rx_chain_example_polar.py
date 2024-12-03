@@ -38,7 +38,7 @@ ofdm_config = config["ofdm"]
 sim = Simulation(sim_config, output_dir)
 code = Code(code_config) 
 transmitter = Transmitter(mod_config, code)
-channel = ChannelAWGN(channel_config)
+channel = ChannelAWGN(channel_config, seed)
 receiver = Receiver(mod_config, code)
 
 len_k = code.len_k

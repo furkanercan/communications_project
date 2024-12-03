@@ -65,55 +65,62 @@ def main_test_polar_sc(config_file):
 
     len_k = code.len_k
     len_n = code.len_n
-    # status_msg, prev_status_msg = [], []
+    status_msg, prev_status_msg = [], []
 
+    if modulator.scheme == "bpsk":
+        modulated_data = np.empty(len_n, dtype=int)  # Real values for BPSK
+        # received_data  = np.empty(len_n, dtype=np.float32) 
+    else:
+        modulated_data = np.empty(len_n // modulator.log_num_constellations, dtype=complex)  # Complex values for QPSK
+        # received_data  = np.empty(len_n // modulator.num_bits, dtype=np.float32) 
+    
     info_data      = np.empty(len_k, dtype=np.int32) 
     encoded_data   = np.empty(len_n, dtype=np.int32) 
-    modulated_data = np.empty(len_n, dtype=np.int32) #CONFIG MUST BE BPSK!
-    received_data  = np.empty(len_n, dtype=np.float32) 
+    
     vec_llr        = np.empty(len_n, dtype=np.float32)
     decoded_data   = np.empty(len_k, dtype=np.bool)
 
-    tolerance = 1e-6
+    tolerance = 1e-6 # Reference doesn't have resolution past 1e-6
 
     for idx, (stdev, var) in enumerate(zip(channel.stdev, channel.variance)):
-        # time_start = time.time()
+        time_start = time.time()
         snr_point = config["channel"]["snr"]["simpoints"]
         while(sim.run_simulation(idx)):
             info_data[:] = np.random.randint(0, 2, size=len_k)
             encoder.encode_chain(encoded_data, info_data)
             modulator.modulate(modulated_data, encoded_data)
-            received_data[:] = channel.apply_awgn(modulated_data, stdev, var)
+            received_data = channel.apply_awgn(modulated_data, stdev, var)
             demodulator.demodulate(vec_llr, received_data, var)
             decoder.decode_chain(decoded_data, vec_llr)
             sim.collect_run_stats(idx, 1023, 1, info_data, decoded_data)
 
-            # if(sim.count_frame[idx] % 100 == 0):
-            #     time_end = time.time()
-            #     time_elapsed = time_end - time_start
-            #     sim.update_run_results(idx, len_k)
-            #     status_msg = sim.display_run_results_temp(idx, snr_point[idx], format_time(time_elapsed), prev_status_msg)
-            #     prev_status_msg = status_msg
+            if(sim.count_frame[idx] % 100 == 0):
+                time_end = time.time()
+                time_elapsed = time_end - time_start
+                sim.update_run_results(idx, len_k)
+                status_msg = sim.display_run_results_temp(idx, snr_point[idx], format_time(time_elapsed), prev_status_msg)
+                prev_status_msg = status_msg
 
-        # time_end = time.time()
-        # time_elapsed = time_end - time_start   
+        time_end = time.time()
+        time_elapsed = time_end - time_start   
         sim.update_run_results(idx, len_k)
 
         # Validate against the reference data with tolerance
-        assert abs(snr_point[idx] - ref_snr[idx])  <= tolerance, f"SNR mismatch at point {snr_point[idx]} (expected {ref_snr[idx]})"
-        assert abs(sim.ber[idx]   - ref_ber[idx])  <= tolerance, f"BER mismatch at point {sim.ber[idx]} (expected {ref_ber[idx]})"
-        assert abs(sim.bler[idx]  - ref_bler[idx]) <= tolerance, f"BLER mismatch at point {sim.bler[idx]} (expected {ref_bler[idx]})"
+        assert abs(snr_point[idx] - ref_snr[idx])  <= tolerance, f"Failure test_polar_sc: {config_file}: SNR mismatch at point {snr_point[idx]} (expected {ref_snr[idx]})"
+        assert abs(sim.ber[idx]   - ref_ber[idx])  <= tolerance, f"Failure test_polar_sc: {config_file}: BER mismatch at point {sim.ber[idx]} (expected {ref_ber[idx]})"
+        assert abs(sim.bler[idx]  - ref_bler[idx]) <= tolerance, f"Failure test_polar_sc: {config_file}: BLER mismatch at point {sim.bler[idx]} (expected {ref_bler[idx]})"
 
         
-        # status_msg = sim.display_run_results_perm(idx, snr_point[idx], format_time(time_elapsed), prev_status_msg)
-        # prev_status_msg = status_msg
+        status_msg = sim.display_run_results_perm(idx, snr_point[idx], format_time(time_elapsed), prev_status_msg)
+        prev_status_msg = status_msg
 
 
 def test_polar_sc():
-    config_file1 = "tests/system/config_test_polarSC_modBPSK_chnAWGN.json5"
+    config_file1 = "tests/system/config_test_polarSC_modBPSK_chnAWGN_n1024_3gpp_k512.json5"
+    config_file2 = "tests/system/config_test_polarSC_modQPSK_chnAWGN_n1024_3gpp_k512.json5"
+    config_file3 = "tests/system/config_test_polarSC_mod16QAM_chnAWGN_n1024_3gpp_k512.json5"
     main_test_polar_sc(config_file1)
+    main_test_polar_sc(config_file2)
+    main_test_polar_sc(config_file3)
 
-# test_polar_sc()
-
-## Check exactness, and closeness (issue warning for closeness - put notes on what are the current versions of things, etc.)
-## Test for library versions????
+# test_polar_sc() #Uncomment for i1ndividual testing or debugging.
