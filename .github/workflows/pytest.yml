@@ -27,6 +27,7 @@ jobs:
       run: |
         chmod +x ./setup.sh  # Make sure setup.sh is executable
         ./setup.sh           # Run the script to set PYTHONPATH
+        ls
     
     - name: Run tests
       run: |
