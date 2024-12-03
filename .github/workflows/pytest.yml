@@ -30,3 +30,7 @@ jobs:
     - name: Run tests
       run: |
         pytest tests/  # This runs all the tests under the 'tests/' folder
+
+    - name: Clean symbolic links
+      run: |
+        python clean_symlinks.py
