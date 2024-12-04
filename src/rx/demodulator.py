@@ -113,11 +113,11 @@ class Demodulator:
         q = np.imag(input_data)  # Quadrature component
 
         # Map signs to bits
-        bits_i = (i > 0).astype(int)
-        bits_q = (q > 0).astype(int)
+        bits_i = (i < 0).astype(int)
+        bits_q = (q < 0).astype(int)
 
         # Combine bits and flatten
-        return np.column_stack((bits_i, bits_q)).flatten()
+        vec_hd[:] = np.column_stack((bits_i, bits_q)).flatten()
     
 
     def softDemod_qpsk(self, vec_llr, input_data, awgn_var):

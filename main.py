@@ -16,7 +16,7 @@ from src.utils.timekeeper import *
 
 seed = 42
 np.random.seed(seed)
-config_file = "ref/config_uncoded.json5"
+config_file = "config.json5"
 config = ConfigLoader(config_file).get()
 run_id = create_run_id(config["code"]["type"], seed) #Make part of sim_config
 output_dir = create_output_folder(run_id) #Make part of sim_config
@@ -26,6 +26,7 @@ code_config = config["code"]
 channel_config = config["channel"]
 mod_config = config["mod"]
 sim_config = config["sim"]
+ofdm_config = config["ofdm"]
 
 sim = Simulation(sim_config, output_dir)
 code = Code(code_config) 

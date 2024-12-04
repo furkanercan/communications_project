@@ -1,6 +1,6 @@
-import sys
-import os
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
+# import sys
+# import os
+# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../../src')))
 
 import numpy as np
 import math
@@ -114,10 +114,10 @@ def main_test_polar_sc(config_file):
 
 
 def test_polar_sc():
-    config_file1 = "tests/system/config_test_polarSC_modBPSK_chnAWGN_n1024_3gpp_k512.json5"
-    config_file2 = "tests/system/config_test_polarSC_modQPSK_chnAWGN_n1024_3gpp_k512.json5"
-    config_file3 = "tests/system/config_test_polarSC_mod16QAM_chnAWGN_n1024_3gpp_k512.json5"
-    config_file4 = "tests/system/config_test_polarSC_mod16QAM_chnAWGN_n256_3gpp_k64.json5"
+    config_file1 = "tests/endtoend/decoding/polar_SC/config_test_polarSC_modBPSK_chnAWGN_n1024_3gpp_k512.json5"
+    config_file2 = "tests/endtoend/decoding/polar_SC/config_test_polarSC_modQPSK_chnAWGN_n1024_3gpp_k512.json5"
+    config_file3 = "tests/endtoend/decoding/polar_SC/config_test_polarSC_mod16QAM_chnAWGN_n1024_3gpp_k512.json5"
+    config_file4 = "tests/endtoend/decoding/polar_SC/config_test_polarSC_mod16QAM_chnAWGN_n256_3gpp_k64.json5"
     main_test_polar_sc(config_file1)
     main_test_polar_sc(config_file2)
     main_test_polar_sc(config_file3)
@@ -125,5 +125,5 @@ def test_polar_sc():
 
 
 # #Uncomment the following for individual testing or debugging. 
-# Comment when pushing!
+# Comment when pushing or pytest'ing.
 # test_polar_sc() 

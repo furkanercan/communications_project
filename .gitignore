@@ -44,4 +44,11 @@ temp*
 # Generated files
 *.sqlite3
 *.db
-
+tests/*/src
+tests/**/src
+tests/***/src
+tests/****/src
+examples/*/src
+examples/**/src
+examples/***/src
+examples/****/src
