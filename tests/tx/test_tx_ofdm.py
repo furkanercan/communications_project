@@ -8,7 +8,10 @@ config = {
     "cyclic_prefix_length": 4
 }
 
-def test_transmitter():
+def test_transmitter_ofdm():
+    len_n = 64
+
+    time_domain_total_length = np.ceil(len_n/config["num_subcarriers"])*(config["num_subcarriers"]+config["cyclic_prefix_length"])
     # Create an OFDM instance and transmitter
     ofdm = OFDM(config)
     transmitter = OFDMTransmitter(ofdm)
@@ -20,4 +23,4 @@ def test_transmitter():
     transmitted_signal = transmitter.transmit(modulated_data)
     
     # Assert the transmitted signal has the expected shape (time-domain + CP)
-    assert transmitted_signal.shape == (20,)  # 16 subcarriers + 4 CP
+    assert transmitted_signal.shape == (time_domain_total_length,)  # 16 subcarriers + 4 CP per transmission

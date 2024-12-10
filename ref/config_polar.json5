@@ -5,9 +5,9 @@
     ],
     "code": {
         "type": "POLAR",
-        "len_k": 64,
+        "len_k": 512,
         "polar":{
-            "polar_file": "src/lib/ecc/polar/3gpp/n256_3gpp.pc",
+            "polar_file": "src/lib/ecc/polar/3gpp/n1024_3gpp.pc",
             "crc":{
                 "enable": false,
                 "length" : 8
@@ -39,31 +39,31 @@
         }
     },
     "mod": {
-        "type": "16QAM",
+        "type": "QPSK",
         "demod_type": "soft"
     },
     "channel": {
         "type": "SNR",
         "snr": {
-            "start": 5,
-            "end": 7.5,
-            "step": 0.5
+            "start": 1,
+            "end": 3,
+            "step": 0.25
         }
     },
     "ofdm": {
-        "num_subcarriers": 64,
-        "cyclic_prefix_length": 16
+        "num_subcarriers": 16,
+        "cyclic_prefix_length": 4
     },
     "sim": {
         "loop": {
-            "num_frames": 5000,
-            "num_errors": 20,
+            "num_frames": 10000,
+            "num_errors": 50,
             "max_frames": 1000000
         },
         "save": {
-            "plot_enable": true,
+            "plot_enable": false,
             "lutsim_enable": false,
-            "save_output": true
+            "save_output": false
         }
     }
 }

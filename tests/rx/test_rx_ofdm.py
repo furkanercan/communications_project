@@ -10,12 +10,13 @@ config = {
 }
 
 def test_receiver():
+    len_n = 64
     # Create an OFDM instance and receiver
     ofdm = OFDM(config)
-    receiver = OFDMReceiver(ofdm)
+    receiver = OFDMReceiver(ofdm, len_n)
     
-    # Generate random modulated data (64 symbols for BPSK)
-    modulated_data = 1 - 2 * np.random.randint(0, 2, 64)
+    # Generate random modulated data (len_n symbols for BPSK)
+    modulated_data = 1 - 2 * np.random.randint(0, 2, len_n)
     
     # Create transmitter and transmit signal
     transmitter = OFDMTransmitter(ofdm)
@@ -28,4 +29,5 @@ def test_receiver():
     recovered_data = receiver.receive(received_signal)
     
     # Assert that the recovered data has the correct shape (frequency-domain)
-    assert recovered_data.shape == (16,)  # 16 subcarriers (frequency-domain data)
+    assert recovered_data.shape == (len_n,) 
+

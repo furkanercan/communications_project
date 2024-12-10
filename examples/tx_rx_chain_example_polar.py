@@ -30,9 +30,9 @@ ofdm_config = config["ofdm"]
 
 sim = Simulation(sim_config, output_dir)
 code = Code(code_config) 
-transmitter = Transmitter(mod_config, code)
+transmitter = Transmitter(mod_config, ofdm_config, code)
 channel = ChannelAWGN(channel_config, seed)
-receiver = Receiver(mod_config, code)
+receiver = Receiver(mod_config, ofdm_config, code)
 
 len_k = code.len_k
 status_msg, prev_status_msg = [], []
@@ -45,7 +45,7 @@ for idx, (stdev, var) in enumerate(zip(channel.stdev, channel.variance)):
     while(sim.run_simulation(idx)):
         info_data[:] = np.random.randint(0, 2, size=len_k)
         transmitter.tx_chain(info_data)
-        received_data = channel.apply_awgn(transmitter.modulated_data, stdev, var)
+        received_data = channel.apply_awgn(transmitter.transmitted_data, stdev, var)
         receiver.rx_chain(received_data, var)
         sim.collect_run_stats(idx, 1023, 1, info_data, receiver.decoded_data)
 

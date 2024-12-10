@@ -32,6 +32,12 @@ mod_config = {
     "demod_type": "soft"
 
 }
+
+ofdm_config = {
+    "num_subcarriers": 16,
+    "cyclic_prefix_length": 4
+}
+
 validate_config_code(code_config)
 code = Code(code_config) 
 
@@ -40,7 +46,7 @@ def test_transmitter():
     uncoded_data = np.random.randint(0, 2, size=code.len_k)
     
     # Instantiate and call class
-    transmitter = Transmitter(mod_config, code)
+    transmitter = Transmitter(mod_config, ofdm_config, code)
     transmitter.tx_chain(uncoded_data)
     
     # Test the outcome

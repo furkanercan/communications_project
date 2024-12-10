@@ -13,7 +13,7 @@
         }
     },
     "mod": {
-        "type": "16QAM",
+        "type": "QPSK",
         "demod_type": "soft"
     },
     "ofdm": {
@@ -23,7 +23,7 @@
     "channel": {
         "type": "SNR",
         "snr": {
-            "start": 8,
+            "start": -2,
             "end": 13,
             "step": 1
         }
@@ -35,9 +35,9 @@
             "max_frames": 10000000
         },
         "save": {
-            "plot_enable": true,
+            "plot_enable": false,
             "lutsim_enable": false,
-            "save_output": true
+            "save_output": false
         }
     }
 }
